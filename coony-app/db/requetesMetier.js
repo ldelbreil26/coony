@@ -1,44 +1,48 @@
 import { execSql, queryAll } from "./baseDeDonnees";
-
-function nowSqlite() {
-  return new Date().toISOString().slice(0, 19).replace("T", " ");
-}
+import { nowSqlite } from "../utils/UtilsDate";
+import { hashMotDePasse } from "../utils/Hash";
 
 export async function creerCompteParent(email, motDePasse) {
+
+  const motDePasseHash = await hashMotDePasse(motDePasse);
   const creeLe = nowSqlite();
+
   await execSql(
     `
     INSERT INTO compte_parent (email, mot_de_passe, cree_le)
     VALUES (?, ?, ?)
     `,
-    [email, motDePasse, creeLe]
+    [email, motDePasseHash, creeLe]
   );
 
   const rows = await queryAll(
-    "SELECT id_parent, email, cree_le, actif FROM compte_parent WHERE email = ? LIMIT 1",
+    `
+    SELECT id_parent, email, cree_le
+    FROM compte_parent
+    WHERE email = ?
+    LIMIT 1
+    `,
     [email]
   );
+
   return rows[0] ?? null;
 }
 
 export async function connecterParent(email, motDePasse) {
+
+  const motDePasseHash = await hashMotDePasse(motDePasse);
+
   const rows = await queryAll(
     `
-    SELECT id_parent, email, cree_le, actif
+    SELECT id_parent, email, cree_le
     FROM compte_parent
-    WHERE email = ? AND mot_de_passe = ? AND actif = 1
+    WHERE email = ? AND mot_de_passe = ?
     LIMIT 1
     `,
-    [email, motDePasse]
+    [email, motDePasseHash]
   );
-  return rows[0] ?? null;
-}
 
-export async function desactiverParent(idParent) {
-  await execSql(
-    "UPDATE compte_parent SET actif = 0 WHERE id_parent = ?",
-    [idParent]
-  );
+  return rows[0] ?? null;
 }
 
 export async function creerProfilEnfant(idParent, prenom, dateNaissance) {
@@ -129,7 +133,7 @@ export async function creerQuestionnaireEmotionnel({
         id_lieu,
         id_couleur
       )
-      VALUES (?, datetime('now'), ?, ?, ?, ?, ?)
+      VALUES (?, ? , ?, ?, ?, ?, ?)
       `,
       [idEnfant, idEmotion, intensiteEmotion, idSignalCorporel, idLieu, idCouleur]
     );

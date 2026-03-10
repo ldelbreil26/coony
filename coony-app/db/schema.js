@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS compte_parent (
 
     cree_le TEXT NOT NULL,
     CHECK (
-        cree_le GLOB '____-__-__ __:__:__'
+        cree_le LIKE '____-__-__ __:__:__'
         AND datetime(cree_le) IS NOT NULL
     )
 );
@@ -53,13 +53,13 @@ CREATE TABLE IF NOT EXISTS profil_enfant (
 
     date_naissance TEXT NOT NULL
     CHECK (
-        date_naissance GLOB '____-__-__'
+        date_naissance LIKE '____-__-__'
         AND date(date_naissance) IS NOT NULL
     ),
 
     cree_le TEXT NOT NULL
     CHECK (
-        cree_le GLOB '____-__-__ __:__:__'
+        cree_le LIKE '____-__-__ __:__:__'
         AND datetime(cree_le) IS NOT NULL
     ),
 
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS questionnaire_emotionnel (
 
     date_questionnaire TEXT NOT NULL
     CHECK (
-        date_questionnaire GLOB '____-__-__ __:__:__'
+        date_questionnaire LIKE '____-__-__ __:__:__'
         AND datetime(date_questionnaire) IS NOT NULL
     ),
 
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS recommandation (
 
     cree_le TEXT NOT NULL
     CHECK (
-        cree_le GLOB '____-__-__ __:__:__'
+        cree_le LIKE '____-__-__ __:__:__'
         AND datetime(cree_le) IS NOT NULL
     ),
 
@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS session_minijeu (
     id_mini_jeu INTEGER NOT NULL,
     realise_le TEXT NOT NULL
     CHECK (
-        realise_le GLOB '____-__-__ __:__:__'
+        realise_le LIKE '____-__-__ __:__:__'
         AND datetime(realise_le) IS NOT NULL
     ),
 

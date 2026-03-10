@@ -5,19 +5,35 @@ let db = null;
 
 async function ouvrirDb() {
   if (!db) {
-    db = await SQLite.openDatabaseAsync("coony.db");
+    db = await SQLite.openDatabaseAsync("coony_v2.db");
   }
   return db;
 }
 
 export async function execSql(sql, params = []) {
   const database = await ouvrirDb();
-  return database.runAsync(sql, params);
+
+  const statement = await database.prepareAsync(sql);
+
+  try {
+    const result = await statement.executeAsync(params);
+    return result;
+  } finally {
+    await statement.finalizeAsync();
+  }
 }
 
 export async function queryAll(sql, params = []) {
   const database = await ouvrirDb();
-  return database.getAllAsync(sql, params);
+
+  const statement = await database.prepareAsync(sql);
+
+  try {
+    const result = await statement.executeAsync(params);
+    return await result.getAllAsync();
+  } finally {
+    await statement.finalizeAsync();
+  }
 }
 
 export async function initialiserBaseDeDonnees() {

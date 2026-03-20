@@ -80,19 +80,6 @@ export async function listerEnfantsDuParent(idParent) {
   );
 }
 
-export async function recupererEnfant(idEnfant) {
-  const rows = await queryAll(
-    `
-    SELECT id_enfant, id_parent, prenom, date_naissance, cree_le
-    FROM profil_enfant
-    WHERE id_enfant = ?
-    LIMIT 1
-    `,
-    [idEnfant]
-  );
-  return rows[0] ?? null;
-}
-
 export async function creerQuestionnaireEmotionnel({
   idEnfant,
   idEmotion,
@@ -104,8 +91,7 @@ export async function creerQuestionnaireEmotionnel({
 }) {
   const dateSql = dateQuestionnaire ?? nowSqlite();
 
-  if (dateQuestionnaire) {
-    await execSql(
+  await execSql(
       `
       INSERT INTO questionnaire_emotionnel (
         id_enfant,
@@ -118,26 +104,8 @@ export async function creerQuestionnaireEmotionnel({
       )
       VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
-      [ idEnfant, dateQuestionnaire, idEmotion, intensiteEmotion, idSignalCorporel, idLieu, idCouleur,]
-    );
-
-  } else {
-    await execSql(
-      `
-      INSERT INTO questionnaire_emotionnel (
-        id_enfant,
-        date_questionnaire,
-        id_emotion,
-        intensite_emotion,
-        id_signal_corporel,
-        id_lieu,
-        id_couleur
-      )
-      VALUES (?, ? , ?, ?, ?, ?, ?)
-      `,
-      [idEnfant, idEmotion, intensiteEmotion, idSignalCorporel, idLieu, idCouleur]
-    );
-  }
+      [ idEnfant, dateSql, idEmotion, intensiteEmotion, idSignalCorporel, idLieu, idCouleur,]
+  );
 
   const rows = await queryAll(
     `
@@ -152,6 +120,44 @@ export async function creerQuestionnaireEmotionnel({
 
   return rows[0] ?? null;
 }
+
+export async function enregistrerQuestionnaire(questionnaire) {
+  const {
+    idEnfant,
+    prenom,
+    idEmotion,
+    emotionLabel,
+    intensiteEmotion,
+    idSignalCorporel,
+    corpsLabel,
+    idLieu,
+    lieuLabel,
+  } = questionnaire;
+
+  await execSql(
+    `
+    INSERT INTO questionnaire_emotionnel (
+      id_enfant,
+      date_questionnaire,
+      id_emotion,
+      intensite_emotion,
+      id_signal_corporel,
+      id_lieu,
+      id_couleur
+    )
+    VALUES (?, datetime('now'), ?, ?, ?, ?, ?)
+    `,
+    [
+      idEnfant,
+      idEmotion,
+      intensiteEmotion,
+      idSignalCorporel,
+      idLieu,
+      1, // valeur par défaut à modifier plus tard 
+    ]
+  );
+}
+
 
 export async function listerQuestionnairesEnfant(idEnfant) {
   return queryAll(

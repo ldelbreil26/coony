@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS questionnaire_emotionnel (
     -- QUESTION 3 : LIEU
     id_lieu INTEGER,
 
-    -- QUESTION 4 : COULEUR
+    -- QUESTION 4 : COULEUR // BONUS 
     id_couleur INTEGER,
 
     FOREIGN KEY (id_enfant)

@@ -5,7 +5,7 @@ let db = null;
 
 async function ouvrirDb() {
   if (!db) {
-    db = await SQLite.openDatabaseAsync("coony_v2.db");
+    db = await SQLite.openDatabaseAsync("coony.db");
   }
   return db;
 }

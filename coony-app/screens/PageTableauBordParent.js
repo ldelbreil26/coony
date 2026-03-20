@@ -6,6 +6,7 @@ import { useSessionParent } from "../state/SessionParent";
 import { listerEnfantsDuParent, listerQuestionnairesEnfant } from "../db/requetesMetier";
 
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { getDateDuJourFormatee } from "../utils/UtilsDate";
 
 export default function PageTableauBordParent() {
   const { parentConnecte } = useSessionParent();
@@ -13,6 +14,8 @@ export default function PageTableauBordParent() {
   const [enfants, setEnfants] = useState([]);
   const [enfantSelectionne, setEnfantSelectionne] = useState(null);
   const [questionnaires, setQuestionnaires] = useState([]);
+
+  const dateDuJour = getDateDuJourFormatee();
 
   const chargerDonnees = async () => {
     try {
@@ -103,9 +106,7 @@ export default function PageTableauBordParent() {
         </View>
 
         <View style={styles.footerCarte}>
-          <Text style={styles.dateTexte}>
-            {dernierQuestionnaire?.date_questionnaire || "JJ / MM / AAAA"}
-          </Text>
+          <Text style={styles.dateTexte}>{dateDuJour}</Text>
 
           <TouchableOpacity style={styles.boutonConseils}>
             <Text style={styles.boutonConseilsTexte}>CONSEILS</Text>
@@ -130,7 +131,7 @@ export default function PageTableauBordParent() {
       </View>
 
       <View style={styles.footerBoutons}>
-        <TouchableOpacity style={styles.boutonMenu}>
+        <TouchableOpacity style={styles.boutonMenu} onPress={() => router.push("/menu")}>
           <Text style={styles.boutonMenuTexte}>Menu</Text>
         </TouchableOpacity>
 

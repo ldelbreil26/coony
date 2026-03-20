@@ -2,6 +2,8 @@ import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, Text, Platform } from "react-native";
 import { SessionParentProvider } from "../state/SessionParent";
+import { EnfantSelectionneProvider } from "../state/EnfantSelectionne";
+import { QuestionnaireProvider } from "../state/QuestionnaireState";
 
 export default function RootLayout() {
   const [dbPret, setDbPret] = useState(false);
@@ -47,7 +49,11 @@ export default function RootLayout() {
 
   return (
     <SessionParentProvider>
-      <Stack screenOptions={{ headerShown: false }} />
+      <EnfantSelectionneProvider>
+        <QuestionnaireProvider>
+          <Stack screenOptions={{ headerShown: false }} />
+        </QuestionnaireProvider>
+      </EnfantSelectionneProvider>
     </SessionParentProvider>
   );
 }

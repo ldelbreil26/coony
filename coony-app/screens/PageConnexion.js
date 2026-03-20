@@ -34,7 +34,7 @@ export default function Connexion() {
 
       Alert.alert("Connexion réussie", "Bienvenue sur COONY.");
       setParentConnecte(parent);
-      router.replace("/dashboard_parent");
+      router.replace("/tableau_de_bord_parent");
 
     } catch (error) {
       console.error("Erreur connexion :", error);

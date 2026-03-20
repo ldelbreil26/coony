@@ -24,7 +24,6 @@ export default function Inscription() {
   const router = useRouter();
 
   const handleInscription = async () => {
-
     try {
       if (!email || !motDePasse || !prenomEnfant || !dateNaissance) {
         Alert.alert(
@@ -68,7 +67,7 @@ export default function Inscription() {
 
       Alert.alert("Compte créé", "Le compte a bien été créé.");
       setParentConnecte(parent);
-      router.replace("/dashboard_parent");
+      router.replace("/tableau_de_bord_parent");
 
 
     } catch (error) {

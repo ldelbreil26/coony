@@ -1,14 +1,39 @@
+import { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useEnfantSelectionne } from "../state/EnfantSelectionne";
 
 import { getDateDuJourFormatee } from "../utils/UtilsDate";
-import { recupererIdEnfant } from "../db/requetesMetier";
+import { listerQuestionnairesEnfant } from "../db/requetesMetier"; // <-- Ajout de l'import
 
 export default function PageDashboardEnfant() {
   const { enfantSelectionne } = useEnfantSelectionne();
   const dateDuJour = getDateDuJourFormatee();
+
+  // NOUVEAU : État pour stocker le questionnaire complété aujourd'hui
+  const [questionnaireDuJour, setQuestionnaireDuJour] = useState(null);
+
+  // NOUVEAU : Fonction pour vérifier si le check-in a été fait aujourd'hui
+  const verifierQuestionnaireDuJour = async () => {
+    if (!enfantSelectionne?.id_enfant) return;
+    
+    try {
+      const historiques = await listerQuestionnairesEnfant(enfantSelectionne.id_enfant);
+      // On cherche si un questionnaire correspond à la date d'aujourd'hui
+      const trouve = historiques.find(q => q.date_questionnaire === dateDuJour);
+      setQuestionnaireDuJour(trouve || null);
+    } catch (error) {
+      console.error("Erreur lors de la vérification du questionnaire :", error);
+    }
+  };
+
+  // NOUVEAU : Se déclenche à chaque fois que l'écran est affiché
+  useFocusEffect(
+    useCallback(() => {
+      verifierQuestionnaireDuJour();
+    }, [enfantSelectionne, dateDuJour])
+  );
 
   const allerQuestionnaire = () => {
     router.push(`/questionnaire/intro?prenom=${enfantSelectionne?.prenom}&idEnfant=${enfantSelectionne.id_enfant}`);
@@ -35,22 +60,35 @@ export default function PageDashboardEnfant() {
           <View style={styles.pastille}>
             <Text style={styles.pastilleTexte}>MOOD DU JOUR</Text>
           </View>
-
           <Text style={styles.dateTexte}>{dateDuJour}</Text>
         </View>
 
+        {/* AFFICHAGE CONDITIONNEL : Le cœur de l'étape 7 */}
         <View style={styles.zoneQuestionnaire}>
-          <TouchableOpacity
-            style={styles.boutonQuestionnaire}
-            onPress={allerQuestionnaire}
-          >
-            <Text style={styles.boutonQuestionnaireTexte}>QUESTIONNAIRE</Text>
-          </TouchableOpacity>
+          {questionnaireDuJour ? (
+            <View style={styles.resultatContainer}>
+              <Text style={styles.texteResultat}>Émotion : {questionnaireDuJour.id_emotion}</Text>
+              <Text style={styles.texteResultat}>Intensité : {questionnaireDuJour.intensite_emotion}/5</Text>
+              <Text style={styles.texteBravo}>Super, ton check-in est fait ! 🎉</Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.boutonQuestionnaire}
+              onPress={allerQuestionnaire}
+            >
+              <Text style={styles.boutonQuestionnaireTexte}>QUESTIONNAIRE</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.ligneMiniJeu}>
           <Text style={styles.labelMiniJeu}>Mini jeu du jour :</Text>
-          <View style={styles.champMiniJeu} />
+          <View style={styles.champMiniJeu}>
+             {/* Affichage du mini-jeu si le questionnaire est fait */}
+             <Text style={styles.texteChampMiniJeu}>
+               {questionnaireDuJour ? "RESPIRATION" : "À découvrir"}
+             </Text>
+          </View>
         </View>
       </View>
 
@@ -59,15 +97,12 @@ export default function PageDashboardEnfant() {
           <TouchableOpacity style={styles.boutonMiniJeu}>
             <Text style={styles.texteMiniJeu}>RESPIRATION</Text>
           </TouchableOpacity>
-
           <TouchableOpacity style={styles.boutonMiniJeu}>
             <Text style={styles.texteMiniJeu}>CONCENTRATION</Text>
           </TouchableOpacity>
-
           <TouchableOpacity style={styles.boutonMiniJeu}>
             <Text style={styles.texteMiniJeu}>DESSIN</Text>
           </TouchableOpacity>
-
           <TouchableOpacity style={styles.boutonMiniJeu}>
             <Text style={styles.texteMiniJeu}>5 - 4 - 3 - 2 - 1</Text>
           </TouchableOpacity>
@@ -253,4 +288,28 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlign: "center",
   },
+
+  resultatContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  texteResultat: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 5,
+  },
+  texteBravo: {
+    fontSize: 14,
+    color: "#4CAF50", // Un petit vert rassurant
+    marginTop: 10,
+    fontWeight: "600",
+  },
+  texteChampMiniJeu: {
+    color: "#333",
+    fontSize: 14,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 6,
+  }
 });

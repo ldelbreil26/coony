@@ -134,6 +134,10 @@ export async function enregistrerQuestionnaire(questionnaire) {
     lieuLabel,
   } = questionnaire;
 
+  // On génère la date exacte avec le même format que le dashboard
+  const dateDuJour = nowSqlite();
+  console.log(dateDuJour);
+
   await execSql(
     `
     INSERT INTO questionnaire_emotionnel (
@@ -145,15 +149,16 @@ export async function enregistrerQuestionnaire(questionnaire) {
       id_lieu,
       id_couleur
     )
-    VALUES (?, datetime('now'), ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
     [
       idEnfant,
+      dateDuJour,
       idEmotion,
       intensiteEmotion,
       idSignalCorporel,
       idLieu,
-      1, // valeur par défaut à modifier plus tard 
+      1, 
     ]
   );
 }

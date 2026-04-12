@@ -8,6 +8,7 @@ import {
 import { router } from "expo-router";
 import { useQuestionnaire } from "../state/QuestionnaireState";
 import { enregistrerQuestionnaire } from "../db/requetesMetier";
+import { matchRecommandation } from "../services/serviceRecommandation";
 
 export default function ResultatQuestionnaire() {
   const { questionnaire, reinitialiserQuestionnaire } = useQuestionnaire();
@@ -30,112 +31,8 @@ export default function ResultatQuestionnaire() {
   console.log(questionnaire);
 
   const resultat = useMemo(() => {
-    // Colère forte
-    if (idEmotion === 4 && intensiteEmotion >= 4) {
-      return {
-        titre: "Tu te sens très en colère.",
-        message:
-          "La colère peut être très forte dans le corps.\n" +
-          "Ton cœur peut battre vite.\n" +
-          "Tes muscles peuvent être tendus.\n\n" +
-          "Quand la colère est grande,\n" +
-          "ça peut être difficile de rester calme.\n\n" +
-          "Tu n’as rien fait de mal.\n" +
-          "Ton corps essaie juste de réagir.\n\n" +
-          "On peut l’aider à se sentir plus tranquille.",
-        proposition:
-          "Je te propose un petit jeu pour t’aider à gérer cette émotion :",
-        miniJeu: "RESPIRATION 4 - 4",
-        idMiniJeu: 1,
-        routeMiniJeu: "/dashboard-enfant",
-      };
-    }
-
-    // Angoisse forte
-    if (idEmotion === 6 && intensiteEmotion >= 4) {
-      return {
-        titre: "Tu te sens très angoissé(e).",
-        message:
-          "L’angoisse peut faire battre le cœur plus vite.\n" +
-          "Le ventre peut se serrer.\n\n" +
-          "C’est parfois impressionnant,\n" +
-          "mais ton corps essaie de te protéger.\n\n" +
-          "On peut l’aider à se calmer doucement.",
-        proposition:
-          "Je te propose un petit jeu pour t’aider à gérer cette émotion :",
-        miniJeu: "RESPIRATION LENTE",
-        idMiniJeu: 6,
-        routeMiniJeu: "/dashboard-enfant",
-      };
-    }
-
-    // Tristesse
-    if (idEmotion === 2) {
-      return {
-        titre: "Tu te sens triste.",
-        message:
-          "La tristesse peut donner envie de se reposer,\n" +
-          "de pleurer ou de rester calme.\n\n" +
-          "C’est une émotion importante.\n" +
-          "Elle montre que quelque chose compte pour toi.\n\n" +
-          "On peut prendre un moment doux pour toi.",
-        proposition:
-          "Je te propose un petit jeu pour t’aider à gérer cette émotion :",
-        miniJeu: "PAUSE CALME",
-        idMiniJeu: 2,
-        routeMiniJeu: "/dashboard-enfant",
-      };
-    }
-
-    // Joie
-    if (idEmotion === 1) {
-      return {
-        titre: "Tu te sens joyeux(se).",
-        message:
-          "La joie fait du bien au corps.\n" +
-          "Tu peux avoir envie de bouger,\n" +
-          "de sourire ou de partager.\n\n" +
-          "C’est une belle émotion.\n" +
-          "Tu peux en profiter pleinement.",
-        proposition:
-          "Je te propose un petit jeu pour continuer avec cette émotion :",
-        miniJeu: "PARTAGE POSITIF",
-        idMiniJeu: 7,
-        routeMiniJeu: "/dashboard-enfant",
-      };
-    }
-
-    // Calme
-    if (idEmotion === 3) {
-      return {
-        titre: "Tu te sens calme.",
-        message:
-          "Ton corps semble tranquille.\n" +
-          "C’est un bon moment pour respirer,\n" +
-          "observer ou profiter du calme.\n\n" +
-          "Tu peux garder ce moment doux encore un peu.",
-        proposition:
-          "Je te propose un petit jeu pour continuer avec cette émotion :",
-        miniJeu: "MOMENT DÉTENTE",
-        idMiniJeu: 8,
-        routeMiniJeu: "/dashboard-enfant",
-      };
-    }
-
-    return {
-      titre: "Merci pour tes réponses.",
-      message:
-        "Tu as pris le temps d’écouter ton corps\n" +
-        "et de dire comment tu te sens.\n\n" +
-        "C’est déjà très important.\n" +
-        "On peut maintenant faire une activité douce.",
-      proposition:
-        "Je te propose un petit jeu pour t’aider à continuer :",
-      miniJeu: "ACTIVITÉ DOUCE",
-      idMiniJeu: 4,
-      routeMiniJeu: "/dashboard-enfant",
-    };
-  }, [idEmotion, intensiteEmotion, idSignalCorporel, idLieu]);
+    return matchRecommandation(idEmotion, intensiteEmotion, idSignalCorporel);
+  }, [idEmotion, intensiteEmotion, idSignalCorporel]);
 
   const lancerMiniJeu = async () => {
     try {
@@ -152,7 +49,7 @@ export default function ResultatQuestionnaire() {
       });
 
       reinitialiserQuestionnaire();
-      router.push(resultat.routeMiniJeu);
+      router.push("/tableau_de_bord_enfant");
     } catch (error) {
       console.error("Erreur enregistrement questionnaire :", error);
     }

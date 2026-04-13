@@ -28,8 +28,6 @@ export default function ResultatQuestionnaire() {
     lieuLabel,
   } = questionnaire;
 
-  console.log(questionnaire);
-
   const resultat = useMemo(() => {
     return matchRecommandation(idEmotion, intensiteEmotion, idSignalCorporel);
   }, [idEmotion, intensiteEmotion, idSignalCorporel]);
@@ -48,8 +46,17 @@ export default function ResultatQuestionnaire() {
         lieuLabel,
       });
 
+      // --- MODIFICATION ICI ---
+      // On récupère l'idMiniJeu calculé par ton moteur de recommandation
+      const idJeu = resultat.idMiniJeu; 
+      
       reinitialiserQuestionnaire();
-      router.push("/tableau_de_bord_enfant");
+
+      // On redirige vers la route dynamique avec l'ID du jeu
+      // router.replace est préférable à push pour éviter de revenir au questionnaire
+      router.replace(`/mini-jeu/${idJeu}`);
+      // -------------------------
+
     } catch (error) {
       console.error("Erreur enregistrement questionnaire :", error);
     }
@@ -72,6 +79,7 @@ export default function ResultatQuestionnaire() {
   );
 }
 
+// ... Tes styles restent identiques
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -80,7 +88,6 @@ const styles = StyleSheet.create({
     paddingTop: 120,
     paddingBottom: 40,
   },
-
   titre: {
     fontSize: 28,
     fontWeight: "700",
@@ -88,7 +95,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 90,
   },
-
   message: {
     fontSize: 16,
     lineHeight: 38,
@@ -96,7 +102,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 90,
   },
-
   proposition: {
     fontSize: 16,
     lineHeight: 34,
@@ -104,7 +109,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 30,
   },
-
   miniJeu: {
     fontSize: 18,
     fontWeight: "700",
@@ -112,7 +116,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 120,
   },
-
   bouton: {
     alignSelf: "center",
     width: "92%",
@@ -121,14 +124,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
-
-    shadowColor: "#000",
-    shadowOpacity: 0.14,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
     elevation: 3,
   },
-
   texteBouton: {
     fontSize: 24,
     fontWeight: "700",

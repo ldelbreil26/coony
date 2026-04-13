@@ -1,52 +1,44 @@
 import { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, ScrollView } from "react-native";
-
+// AJOUT de Alert dans l'import ci-dessous
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert } from "react-native";
 import { router } from "expo-router";
 import { creerProfilEnfant } from "../db/requetesMetier";
 import { useSessionParent } from "../state/SessionParent";
-
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function PageAjoutEnfant() {
   const { parentConnecte } = useSessionParent();
-
   const [prenom, setPrenom] = useState("");
   const [dateNaissance, setDateNaissance] = useState("");
   const [chargement, setChargement] = useState(false);
 
   const handleAjoutEnfant = async () => {
+    if (!prenom || !dateNaissance) {
+      Alert.alert("Champs manquants", "Merci de remplir tous les champs.");
+      return;
+    }
+
+    const regexDate = /^\d{4}-\d{2}-\d{2}$/;
+    if (!regexDate.test(dateNaissance)) {
+      Alert.alert("Date invalide", "Format requis : YYYY-MM-DD.");
+      return;
+    }
+
     try {
-      if (!prenom || !dateNaissance) {
-        Alert.alert("Champs manquants", "Merci de remplir tous les champs.");
-        return;
-      }
-
-      // Soit découpage fonctionnel sois le glisser dans utils/UtilsDate.js
-      const regexDate = /^\d{4}-\d{2}-\d{2}$/;
-      if (!regexDate.test(dateNaissance)) {
-        Alert.alert(
-          "Date invalide",
-          "La date de naissance doit être au format YYYY-MM-DD."
-        );
-        return;
-      }
-
       setChargement(true);
-
       await creerProfilEnfant(
         parentConnecte.id_parent,
         prenom.trim(),
         dateNaissance.trim()
       );
 
-      Alert.alert("Enfant ajouté", "Le profil enfant a bien été créé.");
-      router.replace("/compte_parent");
+      // Message de succès
+      Alert.alert("Succès", "Le profil de " + prenom + " a été créé !");
+      
+      // Retour automatique vers le compte parent
+      router.replace("/compte_parent"); 
     } catch (error) {
-      console.error("Erreur ajout enfant :", error);
-      Alert.alert(
-        "Erreur",
-        error?.message || "Une erreur est survenue lors de l’ajout de l’enfant."
-      );
+      Alert.alert("Erreur", "Impossible d'ajouter l'enfant.");
     } finally {
       setChargement(false);
     }
@@ -73,7 +65,7 @@ export default function PageAjoutEnfant() {
             style={styles.input}
             value={prenom}
             onChangeText={setPrenom}
-            placeholder=""
+            placeholder="Ex: Lucas"
           />
         </View>
 
@@ -84,12 +76,13 @@ export default function PageAjoutEnfant() {
             value={dateNaissance}
             onChangeText={setDateNaissance}
             placeholder="YYYY-MM-DD"
+            keyboardType="numeric"
           />
         </View>
       </View>
 
       <TouchableOpacity
-        style={styles.bouton}
+        style={[styles.bouton, chargement && { opacity: 0.7 }]}
         onPress={handleAjoutEnfant}
         disabled={chargement}
       >

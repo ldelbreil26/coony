@@ -1,4 +1,4 @@
-import QuestionLieu from "../../screens/QuestionLieu";
+import QuestionLieu from "../../../screens/PageQuestionLieu";
 
 export default function Lieu() {
   return <QuestionLieu />;

@@ -1,6 +1,5 @@
-
 import { useCallback, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView, Switch } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { useSessionParent } from "../state/SessionParent";
 import { listerEnfantsDuParent, listerQuestionnairesEnfant } from "../db/requetesMetier";
@@ -17,124 +16,143 @@ export default function PageTableauBordParent() {
 
   const dateDuJour = getDateDuJourFormatee();
 
-  const chargerDonnees = async () => {
+  // Charger la liste des enfants au focus de la page
+  const chargerListeEnfants = async () => {
     try {
       if (!parentConnecte?.id_parent) return;
+      const liste = await listerEnfantsDuParent(parentConnecte.id_parent);
+      setEnfants(liste);
 
-      const listeEnfants = await listerEnfantsDuParent(parentConnecte.id_parent);
-      setEnfants(listeEnfants);
-
-      if (listeEnfants.length > 0) {
-        const premierEnfant = listeEnfants[0];
-        setEnfantSelectionne(premierEnfant);
-
-        const listeQuestionnaires = await listerQuestionnairesEnfant(
-          premierEnfant.id_enfant
-        );
-        setQuestionnaires(listeQuestionnaires);
-      } else {
-        setEnfantSelectionne(null);
-        setQuestionnaires([]);
+      // Si on n'a pas encore sélectionné d'enfant, on prend le premier par défaut
+      if (liste.length > 0 && !enfantSelectionne) {
+        setEnfantSelectionne(liste[0]);
+        chargerHistorique(liste[0].id_enfant);
+      } else if (enfantSelectionne) {
+        // Si on en avait déjà un, on rafraîchit ses données
+        chargerHistorique(enfantSelectionne.id_enfant);
       }
     } catch (error) {
-      console.error("Erreur chargement dashboard :", error);
+      console.error("Erreur chargement enfants :", error);
+    }
+  };
+
+  const chargerHistorique = async (idEnfant) => {
+    try {
+      const listeQuestionnaires = await listerQuestionnairesEnfant(idEnfant);
+      setQuestionnaires(listeQuestionnaires);
+    } catch (error) {
+      console.error("Erreur chargement historique :", error);
     }
   };
 
   useFocusEffect(
     useCallback(() => {
-      chargerDonnees();
+      chargerListeEnfants();
     }, [parentConnecte])
   );
+
+  // Changer d'enfant au clic
+  const changerEnfant = (enfant) => {
+    setEnfantSelectionne(enfant);
+    chargerHistorique(enfant.id_enfant);
+  };
 
   const dernierQuestionnaire = questionnaires.length > 0 ? questionnaires[0] : null;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.bonjour}>
-          Bonjour {parentConnecte?.email ? parentConnecte.email.split("@")[0] : ""}
+          Bonjour {parentConnecte?.email ? parentConnecte.email.split("@")[0] : "Parent"}
         </Text>
-
-        <TouchableOpacity
-          style={styles.boutonProfil}
-          onPress={() => router.push("/compte_parent")} >
-          <Text style={styles.boutonProfilTexte}><MaterialCommunityIcons name="account" size={24} color="#333" /></Text>
+        <TouchableOpacity style={styles.boutonProfil} onPress={() => router.push("/compte_parent")}>
+          <MaterialCommunityIcons name="account" size={24} color="#333" />
         </TouchableOpacity>
       </View>
 
+      {/* SELECTEUR D'ENFANT (SI PLUSIEURS) */}
+      <View style={styles.selecteurContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {enfants.map((e) => (
+            <TouchableOpacity 
+              key={e.id_enfant} 
+              style={[styles.ongletEnfant, enfantSelectionne?.id_enfant === e.id_enfant && styles.ongletActif]}
+              onPress={() => changerEnfant(e)}
+            >
+              <Text style={[styles.ongletTexte, enfantSelectionne?.id_enfant === e.id_enfant && styles.ongletTexteActif]}>
+                {e.prenom}
+              </Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity style={styles.ongletAjout} onPress={() => router.push("/ajout_enfant")}>
+             <MaterialCommunityIcons name="plus" size={18} color="#666" />
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+
+      {/* CARTE INFOS DU JOUR */}
       <View style={styles.carte}>
         <View style={styles.headerCarte}>
           <View style={styles.pastille}>
             <Text style={styles.pastilleTexte}>INFOS DU JOUR</Text>
           </View>
-
-          <Text style={styles.enfantTexte}>
-            {enfantSelectionne
-              ? `Enfant 1 : ${enfantSelectionne.prenom}`
-              : "Aucun enfant"}
+          <Text style={styles.enfantLabel}>
+            {enfantSelectionne?.prenom || "---"}
           </Text>
         </View>
 
         <View style={styles.grandBloc}>
           {dernierQuestionnaire ? (
             <View>
-              <Text style={styles.infoTexte}>
-                Dernière émotion ID : {dernierQuestionnaire.id_emotion}
-              </Text>
-              <Text style={styles.infoTexte}>
-                Intensité : {dernierQuestionnaire.intensite_emotion}/5
-              </Text>
-              <Text style={styles.infoTexte}>
-                Lieu ID : {dernierQuestionnaire.id_lieu ?? "Non renseigné"}
-              </Text>
+              <Text style={styles.infoTexte}>Émotion : <Text style={styles.valeur}>{dernierQuestionnaire.id_emotion}</Text></Text>
+              <Text style={styles.infoTexte}>Intensité : <Text style={styles.valeur}>{dernierQuestionnaire.intensite_emotion}/5</Text></Text>
+              <Text style={styles.infoTexte}>Lieu : <Text style={styles.valeur}>{dernierQuestionnaire.id_lieu || "Non précisé"}</Text></Text>
             </View>
           ) : (
-            <Text style={styles.infoVide}>
-              Aucun questionnaire enregistré pour aujourd’hui.
-            </Text>
+            <Text style={styles.infoVide}>Pas encore de check-in aujourd'hui.</Text>
           )}
         </View>
 
         <View style={styles.ligneMiniJeu}>
-          <Text style={styles.labelMiniJeu}>Mini jeu du jour :</Text>
+          <Text style={styles.labelMiniJeu}>Activité suggérée :</Text>
           <View style={styles.champMiniJeu}>
             <Text style={styles.champMiniJeuTexte}>
-              {dernierQuestionnaire ? "À venir" : ""}
+              {dernierQuestionnaire ? "Respiration 4-4" : "En attente"}
             </Text>
           </View>
         </View>
 
         <View style={styles.footerCarte}>
           <Text style={styles.dateTexte}>{dateDuJour}</Text>
-
           <TouchableOpacity style={styles.boutonConseils}>
             <Text style={styles.boutonConseilsTexte}>CONSEILS</Text>
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* HISTORIQUE */}
+      <Text style={styles.titreSection}>Historique récent</Text>
       <View style={styles.carteBas}>
         {questionnaires.length > 0 ? (
-          questionnaires.slice(0, 5).map((q) => (
-            <View key={q.id_questionnaire} style={styles.ligneHistorique}>
+          questionnaires.slice(0, 5).map((q, index) => (
+            <View key={index} style={styles.ligneHistorique}>
+              <MaterialCommunityIcons name="calendar-check" size={16} color="#666" />
               <Text style={styles.historiqueTexte}>
-                {q.date_questionnaire} — émotion {q.id_emotion} — intensité {q.intensite_emotion}/5
+                {q.date_questionnaire.split(' ')[0]} : {q.id_emotion} ({q.intensite_emotion}/5)
               </Text>
             </View>
           ))
         ) : (
-          <Text style={styles.infoVide}>
-            Aucun historique disponible.
-          </Text>
+          <Text style={styles.infoVide}>Aucun historique pour cet enfant.</Text>
         )}
       </View>
 
+      {/* NAVIGATION BAS */}
       <View style={styles.footerBoutons}>
         <TouchableOpacity style={styles.boutonMenu} onPress={() => router.push("/menu")}>
-          <Text style={styles.boutonMenuTexte}>Menu</Text>
+          <Text style={styles.boutonMenuTexte}>Menu Principal</Text>
         </TouchableOpacity>
-
         <TouchableOpacity style={styles.boutonAide}>
           <Text style={styles.boutonAideTexte}>?</Text>
         </TouchableOpacity>
@@ -144,166 +162,47 @@ export default function PageTableauBordParent() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 24,
-    paddingTop: 70,
-    paddingBottom: 40,
-    backgroundColor: "#F4F4F4",
-    flexGrow: 1,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 28,
-  },
-  bonjour: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#333",
-  },
-  boutonProfil: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: "#EDE7E7",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  boutonProfilTexte: {
-    fontSize: 20,
-  },
-  carte: {
-    backgroundColor: "#D9D9D9",
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 26,
-  },
-  headerCarte: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  pastille: {
-    backgroundColor: "#F3F3F3",
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  pastilleTexte: {
-    fontWeight: "700",
-    fontSize: 16,
-    color: "#333",
-  },
-  enfantTexte: {
-    fontSize: 15,
-    color: "#F5F5F5",
-    fontStyle: "italic",
-    fontWeight: "600",
-  },
-  grandBloc: {
-    backgroundColor: "#F4F4F4",
-    borderRadius: 18,
-    minHeight: 125,
-    padding: 16,
-    marginBottom: 18,
-    justifyContent: "center",
-  },
-  infoTexte: {
-    fontSize: 14,
-    color: "#333",
-    marginBottom: 8,
-  },
-  infoVide: {
-    fontSize: 14,
-    color: "#666",
-    fontStyle: "italic",
-  },
-  ligneMiniJeu: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  labelMiniJeu: {
-    fontSize: 15,
-    color: "#333",
-    fontWeight: "500",
-    marginRight: 8,
-  },
-  champMiniJeu: {
-    flex: 1,
-    height: 28,
-    backgroundColor: "#F3F3F3",
-    borderRadius: 14,
-    justifyContent: "center",
-    paddingHorizontal: 12,
-  },
-  champMiniJeuTexte: {
-    color: "#333",
-    fontSize: 14,
-  },
-  footerCarte: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  dateTexte: {
-    fontSize: 14,
-    color: "#333",
-  },
-  boutonConseils: {
-    backgroundColor: "#F3F3F3",
-    borderRadius: 18,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-  },
-  boutonConseilsTexte: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#333",
-  },
-  carteBas: {
-    backgroundColor: "#D9D9D9",
-    borderRadius: 20,
-    minHeight: 170,
-    padding: 18,
-    marginBottom: 32,
-  },
-  ligneHistorique: {
-    marginBottom: 12,
-  },
-  historiqueTexte: {
-    fontSize: 14,
-    color: "#333",
-  },
-  footerBoutons: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-  },
-  boutonMenu: {
-    backgroundColor: "#EDE7E7",
-    borderRadius: 18,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-  },
-  boutonMenuTexte: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#333",
-  },
-  boutonAide: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: "#EDE7E7",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  boutonAideTexte: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#333",
-  },
+  container: { padding: 24, paddingTop: 60, paddingBottom: 40, backgroundColor: "#F4F4F4", flexGrow: 1 },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
+  bonjour: { fontSize: 18, fontWeight: "700", color: "#333" },
+  boutonProfil: { width: 46, height: 46, borderRadius: 23, backgroundColor: "#D9D9D9", justifyContent: "center", alignItems: "center" },
+  
+  selecteurContainer: { marginBottom: 20, flexDirection: "row" },
+  ongletEnfant: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 15, backgroundColor: "#E0E0E0", marginRight: 8 },
+  ongletActif: { backgroundColor: "#333" },
+  ongletTexte: { fontSize: 14, fontWeight: "600", color: "#666" },
+  ongletTexteActif: { color: "#FFF" },
+  ongletAjout: { width: 35, height: 35, borderRadius: 10, backgroundColor: "#D9D9D9", justifyContent: "center", alignItems: "center" },
+
+  carte: { backgroundColor: "#D9D9D9", borderRadius: 20, padding: 16, marginBottom: 20 },
+  headerCarte: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
+  pastille: { backgroundColor: "#F3F3F3", borderRadius: 18, paddingHorizontal: 12, paddingVertical: 6 },
+  pastilleTexte: { fontWeight: "800", fontSize: 13, color: "#333" },
+  enfantLabel: { fontSize: 14, fontWeight: "700", color: "#555" },
+
+  grandBloc: { backgroundColor: "#F4F4F4", borderRadius: 18, minHeight: 100, padding: 15, marginBottom: 15, justifyContent: "center" },
+  infoTexte: { fontSize: 15, color: "#444", marginBottom: 5 },
+  valeur: { fontWeight: "800", color: "#000" },
+  infoVide: { fontSize: 13, color: "#888", fontStyle: "italic", textAlign: "center" },
+
+  ligneMiniJeu: { flexDirection: "row", alignItems: "center", marginBottom: 15 },
+  labelMiniJeu: { fontSize: 14, color: "#333", fontWeight: "600", marginRight: 8 },
+  champMiniJeu: { flex: 1, height: 32, backgroundColor: "#F3F3F3", borderRadius: 10, justifyContent: "center", paddingHorizontal: 10 },
+  champMiniJeuTexte: { color: "#333", fontSize: 13, fontWeight: "700" },
+
+  footerCarte: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  dateTexte: { fontSize: 13, color: "#666" },
+  boutonConseils: { backgroundColor: "#333", borderRadius: 12, paddingHorizontal: 15, paddingVertical: 8 },
+  boutonConseilsTexte: { fontSize: 12, fontWeight: "700", color: "#FFF" },
+
+  titreSection: { fontSize: 16, fontWeight: "700", marginBottom: 10, color: "#333" },
+  carteBas: { backgroundColor: "#D9D9D9", borderRadius: 20, padding: 15, marginBottom: 30 },
+  ligneHistorique: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10, borderBottomWidth: 1, borderBottomColor: "#CCC", paddingBottom: 5 },
+  historiqueTexte: { fontSize: 13, color: "#333" },
+
+  footerBoutons: { flexDirection: "row", alignItems: "center", gap: 10 },
+  boutonMenu: { flex: 1, backgroundColor: "#D9D9D9", borderRadius: 15, paddingVertical: 12, alignItems: "center" },
+  boutonMenuTexte: { fontSize: 15, fontWeight: "700", color: "#333" },
+  boutonAide: { width: 45, height: 45, borderRadius: 15, backgroundColor: "#D9D9D9", justifyContent: "center", alignItems: "center" },
+  boutonAideTexte: { fontSize: 18, fontWeight: "700" },
 });

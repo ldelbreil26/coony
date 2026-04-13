@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { useSessionParent } from "../state/SessionParent";
@@ -9,6 +9,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function PageCompteParent() {
   const { parentConnecte } = useSessionParent();
+  console.log(parentConnecte);
+
   const [enfants, setEnfants] = useState([]);
 
   const chargerEnfants = async () => {

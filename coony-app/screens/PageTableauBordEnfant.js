@@ -5,38 +5,37 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEnfantSelectionne } from "../state/EnfantSelectionne";
 
 import { getDateDuJourFormatee } from "../utils/UtilsDate";
-import { listerQuestionnairesEnfant } from "../db/requetesMetier"; // <-- Ajout de l'import
+import { getQuestionnaireDuJour } from "../db/requetesMetier";
 
 export default function PageDashboardEnfant() {
   const { enfantSelectionne } = useEnfantSelectionne();
   const dateDuJour = getDateDuJourFormatee();
 
-  // NOUVEAU : État pour stocker le questionnaire complété aujourd'hui
   const [questionnaireDuJour, setQuestionnaireDuJour] = useState(null);
 
-  // NOUVEAU : Fonction pour vérifier si le check-in a été fait aujourd'hui
   const verifierQuestionnaireDuJour = async () => {
     if (!enfantSelectionne?.id_enfant) return;
     
     try {
-      const historiques = await listerQuestionnairesEnfant(enfantSelectionne.id_enfant);
-      // On cherche si un questionnaire correspond à la date d'aujourd'hui
-      const trouve = historiques.find(q => q.date_questionnaire === dateDuJour);
-      setQuestionnaireDuJour(trouve || null);
+      const trouve = await getQuestionnaireDuJour(enfantSelectionne?.id_enfant);
+      setQuestionnaireDuJour(trouve);
     } catch (error) {
       console.error("Erreur lors de la vérification du questionnaire :", error);
     }
   };
 
-  // NOUVEAU : Se déclenche à chaque fois que l'écran est affiché
   useFocusEffect(
     useCallback(() => {
       verifierQuestionnaireDuJour();
-    }, [enfantSelectionne, dateDuJour])
+    }, [enfantSelectionne])
   );
 
   const allerQuestionnaire = () => {
     router.push(`/questionnaire/intro?prenom=${enfantSelectionne?.prenom}&idEnfant=${enfantSelectionne.id_enfant}`);
+  };
+
+  const allerAuJeu = (idJeu) => {
+    router.push(`/mini-jeu/${idJeu}`);
   };
 
   const retournerMenu = () => {
@@ -45,16 +44,17 @@ export default function PageDashboardEnfant() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.bonjour}>
           Bonjour {enfantSelectionne?.prenom || "XXXX"}
         </Text>
-
         <TouchableOpacity style={styles.boutonSortie} onPress={retournerMenu}>
           <Ionicons name="exit-outline" size={26} color="#333" />
         </TouchableOpacity>
       </View>
 
+      {/* CARTE MOOD DU JOUR */}
       <View style={styles.carteMood}>
         <View style={styles.headerCarte}>
           <View style={styles.pastille}>
@@ -63,52 +63,56 @@ export default function PageDashboardEnfant() {
           <Text style={styles.dateTexte}>{dateDuJour}</Text>
         </View>
 
-        {/* AFFICHAGE CONDITIONNEL : Le cœur de l'étape 7 */}
+        {/* ZONE RESULTATS : Vide si pas de questionnaire, remplie sinon */}
         <View style={styles.zoneQuestionnaire}>
-          {questionnaireDuJour ? (
+          {questionnaireDuJour && (
             <View style={styles.resultatContainer}>
               <Text style={styles.texteResultat}>Émotion : {questionnaireDuJour.id_emotion}</Text>
               <Text style={styles.texteResultat}>Intensité : {questionnaireDuJour.intensite_emotion}/5</Text>
-              <Text style={styles.texteBravo}>Super, ton check-in est fait ! 🎉</Text>
             </View>
-          ) : (
-            <TouchableOpacity
-              style={styles.boutonQuestionnaire}
-              onPress={allerQuestionnaire}
-            >
-              <Text style={styles.boutonQuestionnaireTexte}>QUESTIONNAIRE</Text>
-            </TouchableOpacity>
           )}
         </View>
 
-        <View style={styles.ligneMiniJeu}>
-          <Text style={styles.labelMiniJeu}>Mini jeu du jour :</Text>
-          <View style={styles.champMiniJeu}>
-             {/* Affichage du mini-jeu si le questionnaire est fait */}
-             <Text style={styles.texteChampMiniJeu}>
-               {questionnaireDuJour ? "RESPIRATION" : "À découvrir"}
-             </Text>
-          </View>
+        {/* LIGNE FIXE : BOUTON QUESTIONNAIRE */}
+        <View style={styles.ligneQuestionnaire}>
+          <TouchableOpacity 
+            style={styles.champQuestionnaire} 
+            onPress={allerQuestionnaire}
+          >
+            <Text style={styles.texteQuestionnaire}>QUESTIONNAIRE</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
+      {/* GRILLE DES MINI-JEUX COMPLÈTE */}
       <View style={styles.carteMiniJeux}>
         <View style={styles.grilleMiniJeux}>
-          <TouchableOpacity style={styles.boutonMiniJeu}>
-            <Text style={styles.texteMiniJeu}>RESPIRATION</Text>
+          <TouchableOpacity 
+            style={styles.boutonMiniJeu} 
+            onPress={() => allerAuJeu(1)}
+          >
+            <Ionicons name="leaf-outline" size={24} color="#333" />
+            <Text style={styles.texteMiniJeu}>RESPIRATION 4-4</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.boutonMiniJeu}>
+            <Ionicons name="bulb-outline" size={24} color="#333" />
             <Text style={styles.texteMiniJeu}>CONCENTRATION</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.boutonMiniJeu}>
+            <Ionicons name="brush-outline" size={24} color="#333" />
             <Text style={styles.texteMiniJeu}>DESSIN</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.boutonMiniJeu}>
+            <Ionicons name="hand-right-outline" size={24} color="#333" />
             <Text style={styles.texteMiniJeu}>5 - 4 - 3 - 2 - 1</Text>
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* CATALOGUE */}
       <View style={styles.carteCatalogue}>
         <TouchableOpacity style={styles.boutonCatalogue}>
           <Text style={styles.texteCatalogue}>CATALOGUE DES ÉMOTIONS</Text>
@@ -144,11 +148,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#EDE7E7",
     justifyContent: "center",
     alignItems: "center",
-
-    shadowColor: "#000",
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
     elevation: 3,
   },
   carteMood: {
@@ -156,11 +155,6 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     padding: 18,
     marginBottom: 28,
-
-    shadowColor: "#000",
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
     elevation: 3,
   },
   headerCarte: {
@@ -193,49 +187,37 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
-  boutonQuestionnaire: {
-    backgroundColor: "#D9D9D9",
-    borderRadius: 20,
-    paddingHorizontal: 38,
-    paddingVertical: 18,
-
-    shadowColor: "#000",
-    shadowOpacity: 0.16,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  boutonQuestionnaireTexte: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#333",
-  },
-  ligneMiniJeu: {
+  ligneQuestionnaire: {
     flexDirection: "row",
     alignItems: "center",
   },
-  labelMiniJeu: {
+  labelQuestionnaire: {
     fontSize: 15,
     fontWeight: "600",
     color: "#333",
     marginRight: 10,
   },
-  champMiniJeu: {
+  champQuestionnaire: {
     flex: 1,
-    height: 32,
-    backgroundColor: "#F3F3F3",
+    height: 42,
+    backgroundColor: "#F3F3F3", // Même couleur claire que tes boutons
     borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 2,
+    borderWidth: 2,
+    borderColor: "#E0E0E0",
+  },
+  texteQuestionnaire: {
+    color: "#333",
+    fontSize: 14,
+    fontWeight: "700",
   },
   carteMiniJeux: {
     backgroundColor: "#D9D9D9",
     borderRadius: 22,
     padding: 18,
     marginBottom: 28,
-
-    shadowColor: "#000",
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
     elevation: 3,
   },
   grilleMiniJeux: {
@@ -248,18 +230,14 @@ const styles = StyleSheet.create({
     width: "47%",
     backgroundColor: "#F3F3F3",
     borderRadius: 20,
-    minHeight: 74,
+    minHeight: 85,
     justifyContent: "center",
     alignItems: "center",
-
-    shadowColor: "#000",
-    shadowOpacity: 0.14,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    gap: 5,
     elevation: 3,
   },
   texteMiniJeu: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "700",
     color: "#333",
     textAlign: "center",
@@ -268,11 +246,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F4F4F4",
     borderRadius: 22,
     padding: 12,
-
-    shadowColor: "#000",
-    shadowOpacity: 0.16,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
     elevation: 3,
   },
   boutonCatalogue: {
@@ -288,28 +261,18 @@ const styles = StyleSheet.create({
     color: "#333",
     textAlign: "center",
   },
-
   resultatContainer: {
     alignItems: "center",
     justifyContent: "center",
   },
   texteResultat: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 5,
   },
   texteBravo: {
     fontSize: 14,
-    color: "#4CAF50", // Un petit vert rassurant
-    marginTop: 10,
+    color: "#4CAF50",
     fontWeight: "600",
-  },
-  texteChampMiniJeu: {
-    color: "#333",
-    fontSize: 14,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 6,
   }
 });

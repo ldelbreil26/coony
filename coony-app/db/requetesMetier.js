@@ -175,3 +175,18 @@ export async function listerQuestionnairesEnfant(idEnfant) {
     [idEnfant]
   );
 }
+
+export async function getQuestionnaireDuJour(idEnfant) {
+  const resultats = await queryAll(
+    `
+      SELECT * 
+      FROM questionnaire_emotionnel
+      WHERE id_enfant = ? AND date(date_questionnaire) = date('now', 'localtime')
+      ORDER BY date_questionnaire DESC
+      LIMIT 1;
+    `,
+    [idEnfant]
+  );
+
+  return resultats.length > 0 ? resultats[0] : null;
+}

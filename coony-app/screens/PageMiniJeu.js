@@ -3,17 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-// 1. Import de ton composant de respiration
 import MiniJeuRespiration from '../components/Mini_Jeux/Mini_Jeu_Respiration';
 
 export default function PageConteneurMiniJeu() {
   // On récupère l'ID envoyé par le questionnaire ou le dashboard
   const { id } = useLocalSearchParams();
 
-  // 2. Fonction de rendu conditionnel
   const renderGame = () => {
     switch (id) {
-      case '1': // L'ID de "Respiration 4-4" dans ta BDD
+      case '1':
         return <MiniJeuRespiration />;
       
       /* Tu ajouteras les autres cases ici au fur et à mesure :
@@ -22,7 +20,6 @@ export default function PageConteneurMiniJeu() {
       */
 
       default:
-        // Cas de secours si le jeu n'est pas encore implémenté
         return (
           <View style={styles.containerFallback}>
             <Ionicons name="construct-outline" size={80} color="#CCC" />

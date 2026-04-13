@@ -16,19 +16,16 @@ export default function PageTableauBordParent() {
 
   const dateDuJour = getDateDuJourFormatee();
 
-  // Charger la liste des enfants au focus de la page
   const chargerListeEnfants = async () => {
     try {
       if (!parentConnecte?.id_parent) return;
       const liste = await listerEnfantsDuParent(parentConnecte.id_parent);
       setEnfants(liste);
 
-      // Si on n'a pas encore sélectionné d'enfant, on prend le premier par défaut
       if (liste.length > 0 && !enfantSelectionne) {
         setEnfantSelectionne(liste[0]);
         chargerHistorique(liste[0].id_enfant);
       } else if (enfantSelectionne) {
-        // Si on en avait déjà un, on rafraîchit ses données
         chargerHistorique(enfantSelectionne.id_enfant);
       }
     } catch (error) {
@@ -105,9 +102,15 @@ export default function PageTableauBordParent() {
         <View style={styles.grandBloc}>
           {dernierQuestionnaire ? (
             <View>
-              <Text style={styles.infoTexte}>Émotion : <Text style={styles.valeur}>{dernierQuestionnaire.id_emotion}</Text></Text>
-              <Text style={styles.infoTexte}>Intensité : <Text style={styles.valeur}>{dernierQuestionnaire.intensite_emotion}/5</Text></Text>
-              <Text style={styles.infoTexte}>Lieu : <Text style={styles.valeur}>{dernierQuestionnaire.id_lieu || "Non précisé"}</Text></Text>
+              <Text style={styles.infoTexte}>
+                Émotion : <Text style={styles.valeur}>{dernierQuestionnaire.emotion_nom}</Text>
+              </Text>
+              <Text style={styles.infoTexte}>
+                Intensité : <Text style={styles.valeur}>{dernierQuestionnaire.intensite_emotion}/5</Text>
+              </Text>
+              <Text style={styles.infoTexte}>
+                Lieu : <Text style={styles.valeur}>{dernierQuestionnaire.lieu_nom || "Non précisé"}</Text>
+              </Text>
             </View>
           ) : (
             <Text style={styles.infoVide}>Pas encore de check-in aujourd'hui.</Text>
@@ -139,7 +142,7 @@ export default function PageTableauBordParent() {
             <View key={index} style={styles.ligneHistorique}>
               <MaterialCommunityIcons name="calendar-check" size={16} color="#666" />
               <Text style={styles.historiqueTexte}>
-                {q.date_questionnaire.split(' ')[0]} : {q.id_emotion} ({q.intensite_emotion}/5)
+                {q.date_questionnaire.split(' ')[0]} : {q.emotion_nom} ({q.intensite_emotion}/5)
               </Text>
             </View>
           ))

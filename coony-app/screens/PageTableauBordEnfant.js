@@ -5,7 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEnfantSelectionne } from "../state/EnfantSelectionne";
 
 import { getDateDuJourFormatee } from "../utils/UtilsDate";
-import { getQuestionnaireDuJour } from "../db/requetesMetier";
+import { getDernierQuestionnaireDuJour } from "../db/requetesMetier";
 
 export default function PageDashboardEnfant() {
   const { enfantSelectionne } = useEnfantSelectionne();
@@ -13,17 +13,20 @@ export default function PageDashboardEnfant() {
 
   const [questionnaireDuJour, setQuestionnaireDuJour] = useState(null);
 
+  // Fonction pour charger le dernier questionnaire du jour
   const verifierQuestionnaireDuJour = async () => {
     if (!enfantSelectionne?.id_enfant) return;
     
     try {
-      const trouve = await getQuestionnaireDuJour(enfantSelectionne?.id_enfant);
+      // On utilise bien la fonction importée avec le JOIN SQL
+      const trouve = await getDernierQuestionnaireDuJour(enfantSelectionne.id_enfant);
       setQuestionnaireDuJour(trouve);
     } catch (error) {
       console.error("Erreur lors de la vérification du questionnaire :", error);
     }
   };
 
+  // Rafraîchissement automatique quand on arrive sur la page
   useFocusEffect(
     useCallback(() => {
       verifierQuestionnaireDuJour();
@@ -47,7 +50,7 @@ export default function PageDashboardEnfant() {
       {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.bonjour}>
-          Bonjour {enfantSelectionne?.prenom || "XXXX"}
+          Bonjour {enfantSelectionne?.prenom || "Ami"}
         </Text>
         <TouchableOpacity style={styles.boutonSortie} onPress={retournerMenu}>
           <Ionicons name="exit-outline" size={26} color="#333" />
@@ -63,33 +66,44 @@ export default function PageDashboardEnfant() {
           <Text style={styles.dateTexte}>{dateDuJour}</Text>
         </View>
 
-        {/* ZONE RESULTATS : Vide si pas de questionnaire, remplie sinon */}
+        {/* ZONE RESULTATS */}
         <View style={styles.zoneQuestionnaire}>
-          {questionnaireDuJour && (
+          {questionnaireDuJour ? (
             <View style={styles.resultatContainer}>
-              <Text style={styles.texteResultat}>Émotion : {questionnaireDuJour.id_emotion}</Text>
-              <Text style={styles.texteResultat}>Intensité : {questionnaireDuJour.intensite_emotion}/5</Text>
+              <Text style={styles.texteResultat}>
+                Émotion : <Text style={styles.valeurResultat}>{questionnaireDuJour.emotion_nom}</Text>
+              </Text>
+              <Text style={styles.texteResultat}>
+                Intensité : <Text style={styles.valeurResultat}>{questionnaireDuJour.intensite_emotion}/5</Text>
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.resultatVide}>
+              <Ionicons name="happy-outline" size={40} color="#888" />
+              <Text style={styles.texteVide}>Comment te sens-tu aujourd'hui ?</Text>
             </View>
           )}
         </View>
 
-        {/* LIGNE FIXE : BOUTON QUESTIONNAIRE */}
+        {/* BOUTON QUESTIONNAIRE */}
         <View style={styles.ligneQuestionnaire}>
           <TouchableOpacity 
             style={styles.champQuestionnaire} 
             onPress={allerQuestionnaire}
           >
-            <Text style={styles.texteQuestionnaire}>QUESTIONNAIRE</Text>
+            <Text style={styles.texteQuestionnaire}>
+              {"QUESTIONNAIRE"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* GRILLE DES MINI-JEUX COMPLÈTE */}
+      {/* GRILLE DES MINI-JEUX */}
       <View style={styles.carteMiniJeux}>
         <View style={styles.grilleMiniJeux}>
           <TouchableOpacity 
             style={styles.boutonMiniJeu} 
-            onPress={() => allerAuJeu(1)}
+            onPress={() => allerAuJeu("respiration")}
           >
             <Ionicons name="leaf-outline" size={24} color="#333" />
             <Text style={styles.texteMiniJeu}>RESPIRATION 4-4</Text>
@@ -175,38 +189,55 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   dateTexte: {
-    color: "#F5F5F5",
-    fontSize: 16,
+    color: "#666",
+    fontSize: 14,
     fontWeight: "600",
   },
   zoneQuestionnaire: {
     backgroundColor: "#F4F4F4",
     borderRadius: 20,
-    minHeight: 170,
+    minHeight: 140,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 20,
+    padding: 15,
   },
-  ligneQuestionnaire: {
-    flexDirection: "row",
+  resultatContainer: {
     alignItems: "center",
   },
-  labelQuestionnaire: {
-    fontSize: 15,
-    fontWeight: "600",
+  resultatVide: {
+    alignItems: "center",
+    gap: 10,
+  },
+  texteVide: {
+    color: "#888",
+    fontSize: 14,
+    fontStyle: "italic",
+  },
+  texteResultat: {
+    fontSize: 16,
     color: "#333",
-    marginRight: 10,
+    marginBottom: 4,
+  },
+  valeurResultat: {
+    fontWeight: "bold",
+    color: "#333",
+  },
+  texteBravo: {
+    fontSize: 13,
+    color: "#4CAF50",
+    marginTop: 8,
+    fontWeight: "600",
   },
   champQuestionnaire: {
-    flex: 1,
-    height: 42,
-    backgroundColor: "#F3F3F3", // Même couleur claire que tes boutons
+    backgroundColor: "#F3F3F3",
     borderRadius: 16,
+    height: 45,
+    width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    elevation: 2,
-    borderWidth: 2,
-    borderColor: "#E0E0E0",
+    borderWidth: 1,
+    borderColor: "#CCC",
   },
   texteQuestionnaire: {
     color: "#333",
@@ -218,23 +249,21 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     padding: 18,
     marginBottom: 28,
-    elevation: 3,
   },
   grilleMiniJeux: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    gap: 14,
+    gap: 12,
   },
   boutonMiniJeu: {
-    width: "47%",
+    width: "48%",
     backgroundColor: "#F3F3F3",
     borderRadius: 20,
-    minHeight: 85,
+    paddingVertical: 20,
     justifyContent: "center",
     alignItems: "center",
-    gap: 5,
-    elevation: 3,
+    gap: 8,
   },
   texteMiniJeu: {
     fontSize: 14,
@@ -245,13 +274,11 @@ const styles = StyleSheet.create({
   carteCatalogue: {
     backgroundColor: "#F4F4F4",
     borderRadius: 22,
-    padding: 12,
-    elevation: 3,
   },
   boutonCatalogue: {
     backgroundColor: "#D9D9D9",
     borderRadius: 22,
-    minHeight: 120,
+    minHeight: 100,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -259,20 +286,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
     color: "#333",
-    textAlign: "center",
   },
-  resultatContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  texteResultat: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  texteBravo: {
-    fontSize: 14,
-    color: "#4CAF50",
-    fontWeight: "600",
-  }
 });

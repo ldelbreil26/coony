@@ -2,6 +2,7 @@ import { execSql, queryAll } from "./baseDeDonnees";
 import { nowSqlite } from "../utils/UtilsDate";
 import { hashMotDePasse } from "../utils/Hash";
 
+// INSCRIPTION & CONNEXION //
 export async function creerCompteParent(email, motDePasse) {
 
   const motDePasseHash = await hashMotDePasse(motDePasse);
@@ -68,6 +69,8 @@ export async function creerProfilEnfant(idParent, prenom, dateNaissance) {
   return rows[0] ?? null;
 }
 
+// COMPTE PARENT //
+
 export async function listerEnfantsDuParent(idParent) {
   return queryAll(
     `
@@ -79,6 +82,21 @@ export async function listerEnfantsDuParent(idParent) {
     [idParent]
   );
 }
+
+export async function supprimerProfilEnfant(idEnfant) {
+  try {
+    await queryAll("DELETE FROM questionnaire_emotionnel WHERE id_enfant = ?", [idEnfant]);
+    
+    await queryAll("DELETE FROM profil_enfant WHERE id_enfant = ?", [idEnfant]);
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Erreur SQL suppression enfant :", error);
+    throw error;
+  }
+}
+
+// QUESTIONNAIRE EMOTIONNEL //
 
 export async function creerQuestionnaireEmotionnel({
   idEnfant,
@@ -162,43 +180,40 @@ export async function enregistrerQuestionnaire(questionnaire) {
   );
 }
 
-
 export async function listerQuestionnairesEnfant(idEnfant) {
   return queryAll(
     `
-    SELECT *
-    FROM questionnaire_emotionnel
-    WHERE id_enfant = ?
-    ORDER BY date_questionnaire DESC
+    SELECT 
+      q.*, 
+      e.libelle AS emotion_nom,
+      l.libelle AS lieu_nom,
+      s.libelle AS signal_nom
+    FROM questionnaire_emotionnel q
+    LEFT JOIN catalogue_emotions e ON q.id_emotion = e.id_emotion
+    LEFT JOIN catalogue_lieux l ON q.id_lieu = l.id_lieu
+    LEFT JOIN catalogue_signaux_corporels s ON q.id_signal_corporel = s.id_signal_corporel
+    WHERE q.id_enfant = ?
+    ORDER BY q.date_questionnaire DESC
     `,
     [idEnfant]
   );
 }
 
-export async function getQuestionnaireDuJour(idEnfant) {
+export async function getDernierQuestionnaireDuJour(idEnfant) {
   const resultats = await queryAll(
     `
-      SELECT * 
-      FROM questionnaire_emotionnel
-      WHERE id_enfant = ? AND date(date_questionnaire) = date('now', 'localtime')
-      ORDER BY date_questionnaire DESC
+      SELECT 
+        q.*, 
+        e.libelle AS emotion_nom
+      FROM questionnaire_emotionnel q
+      LEFT JOIN catalogue_emotions e ON q.id_emotion = e.id_emotion
+      WHERE q.id_enfant = ? 
+        AND date(q.date_questionnaire) = date('now', 'localtime')
+      ORDER BY q.date_questionnaire DESC 
       LIMIT 1;
     `,
     [idEnfant]
   );
 
   return resultats.length > 0 ? resultats[0] : null;
-}
-
-export async function supprimerProfilEnfant(idEnfant) {
-  try {
-    await queryAll("DELETE FROM questionnaire_emotionnel WHERE id_enfant = ?", [idEnfant]);
-    
-    await queryAll("DELETE FROM profil_enfant WHERE id_enfant = ?", [idEnfant]);
-    
-    return { success: true };
-  } catch (error) {
-    console.error("Erreur SQL suppression enfant :", error);
-    throw error;
-  }
 }

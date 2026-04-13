@@ -134,7 +134,6 @@ export async function enregistrerQuestionnaire(questionnaire) {
     lieuLabel,
   } = questionnaire;
 
-  // On génère la date exacte avec le même format que le dashboard
   const dateDuJour = nowSqlite();
   console.log(dateDuJour);
 
@@ -189,4 +188,17 @@ export async function getQuestionnaireDuJour(idEnfant) {
   );
 
   return resultats.length > 0 ? resultats[0] : null;
+}
+
+export async function supprimerProfilEnfant(idEnfant) {
+  try {
+    await queryAll("DELETE FROM questionnaire_emotionnel WHERE id_enfant = ?", [idEnfant]);
+    
+    await queryAll("DELETE FROM profil_enfant WHERE id_enfant = ?", [idEnfant]);
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Erreur SQL suppression enfant :", error);
+    throw error;
+  }
 }

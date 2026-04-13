@@ -1,18 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { useCallback, useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { useSessionParent } from "../state/SessionParent";
-import { listerEnfantsDuParent } from "../db/requetesMetier";
+import { listerEnfantsDuParent, supprimerProfilEnfant } from "../db/requetesMetier";
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-
 export default function PageCompteParent() {
   const { parentConnecte } = useSessionParent();
-  console.log(parentConnecte);
-
   const [enfants, setEnfants] = useState([]);
 
+  // Charger la liste des enfants
   const chargerEnfants = async () => {
     if (!parentConnecte?.id_parent) return;
 
@@ -24,6 +22,7 @@ export default function PageCompteParent() {
     }
   };
 
+  // Rafraîchir à chaque fois que l'écran est affiché
   useFocusEffect(
     useCallback(() => {
       chargerEnfants();
@@ -32,12 +31,42 @@ export default function PageCompteParent() {
 
   const motDePasseMasque = "••••••••";
 
+  // Alerte de confirmation avant suppression
+  const confirmerSuppression = (enfant) => {
+    Alert.alert(
+      "Supprimer le profil",
+      `Es-tu sûr de vouloir supprimer le profil de ${enfant.prenom} ? Cette action effacera aussi son historique.`,
+      [
+        { text: "Annuler", style: "cancel" },
+        { 
+          text: "Supprimer", 
+          style: "destructive", 
+          onPress: () => handleSupprimer(enfant.id_enfant) 
+        }
+      ]
+    );
+  };
+
+  // Logique de suppression
+  const handleSupprimer = async (idEnfant) => {
+    try {
+      await supprimerProfilEnfant(idEnfant);
+      await chargerEnfants(); // On recharge la liste immédiatement
+      Alert.alert("Succès", "Le profil a été supprimé.");
+    } catch (error) {
+      console.error("Erreur suppression :", error);
+      Alert.alert("Erreur", "Impossible de supprimer l'enfant.");
+    }
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      {/* Bouton Retour */}
       <TouchableOpacity style={styles.boutonRetour} onPress={() => router.back()}>
         <Ionicons name="return-up-back-outline" size={24} color="#333" />
       </TouchableOpacity>
 
+      {/* Carte Parent */}
       <View style={styles.carte}>
         <View style={styles.pastille}>
           <Text style={styles.pastilleTexte}>PARENT</Text>
@@ -46,7 +75,7 @@ export default function PageCompteParent() {
         <View style={styles.ligneChamp}>
           <Text style={styles.label}>Mail :</Text>
           <View style={styles.inputLong}>
-            <Text style={styles.valeur}>{parentConnecte?.email || ""}</Text>
+            <Text style={styles.valeur}>{parentConnecte?.email || "Non connecté"}</Text>
           </View>
         </View>
 
@@ -61,12 +90,12 @@ export default function PageCompteParent() {
       <Text style={styles.preferences}>Préférences Système</Text>
       <View style={styles.separateurGlobal} />
 
+      {/* Liste des Enfants */}
       {enfants.length === 0 ? (
         <View style={styles.carte}>
           <View style={styles.pastille}>
             <Text style={styles.pastilleTexte}>ENFANT</Text>
           </View>
-
           <Text style={styles.aucunEnfant}>
             Aucun enfant enregistré pour le moment.
           </Text>
@@ -78,8 +107,20 @@ export default function PageCompteParent() {
               <View style={styles.pastille}>
                 <Text style={styles.pastilleTexte}>ENFANT</Text>
               </View>
-              <View style={styles.numero}>
-                <Text style={styles.numeroTexte}>{index + 1}</Text>
+              
+              <View style={styles.actionsEnfant}>
+                {/* Bouton de suppression */}
+                <TouchableOpacity 
+                  onPress={() => confirmerSuppression(enfant)}
+                  style={styles.boutonSupprimer}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#FF4444" />
+                </TouchableOpacity>
+
+                {/* Numéro de l'enfant */}
+                <View style={styles.numero}>
+                  <Text style={styles.numeroTexte}>{index + 1}</Text>
+                </View>
               </View>
             </View>
 
@@ -127,11 +168,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 26,
   },
-  boutonRetourTexte: {
-    fontSize: 22,
-    color: "#333",
-    fontWeight: "600",
-  },
   carte: {
     backgroundColor: "#D9D9D9",
     borderRadius: 20,
@@ -154,7 +190,15 @@ const styles = StyleSheet.create({
   headerEnfant: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  actionsEnfant: {
+    flexDirection: "row",
     alignItems: "center",
+  },
+  boutonSupprimer: {
+    padding: 8,
+    marginRight: 10,
   },
   numero: {
     width: 34,

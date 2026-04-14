@@ -1,23 +1,20 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import MiniJeuRespiration from '../components/Mini_Jeux/Mini_Jeu_Respiration';
 
 export default function PageConteneurMiniJeu() {
-  // On récupère l'ID envoyé par le questionnaire ou le dashboard
   const { id } = useLocalSearchParams();
+
+  const quitterJeu = () => {
+    router.replace('/tableau_de_bord_enfant'); 
+  };
 
   const renderGame = () => {
     switch (id) {
       case '1':
         return <MiniJeuRespiration />;
-      
-      /* Tu ajouteras les autres cases ici au fur et à mesure :
-      case '2':
-        return <MiniJeuPauseCalme />;
-      */
 
       default:
         return (
@@ -29,7 +26,7 @@ export default function PageConteneurMiniJeu() {
             </Text>
             <TouchableOpacity 
               style={styles.boutonRetour} 
-              onPress={() => router.replace('/dashboard-enfant')}
+              onPress={quitterJeu}
             >
               <Text style={styles.texteBouton}>Retourner au tableau de bord</Text>
             </TouchableOpacity>
@@ -40,6 +37,11 @@ export default function PageConteneurMiniJeu() {
 
   return (
     <View style={styles.safeArea}>
+      {/* Bouton de sortie flottant */}
+      <TouchableOpacity style={styles.boutonFermer} onPress={quitterJeu}>
+        <Ionicons name="close-circle" size={40} color="#333" />
+      </TouchableOpacity>
+
       {renderGame()}
     </View>
   );
@@ -49,6 +51,13 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#F4F4F4',
+  },
+  boutonFermer: {
+    position: 'absolute',
+    top: 50, 
+    right: 20,
+    zIndex: 999, 
+    opacity: 0.7, 
   },
   containerFallback: {
     flex: 1,

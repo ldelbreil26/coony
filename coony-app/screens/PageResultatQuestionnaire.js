@@ -1,135 +1,153 @@
 import { useMemo } from "react";
-import {
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
 import { router } from "expo-router";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 import { useQuestionnaire } from "../state/QuestionnaireState";
 import { enregistrerQuestionnaire } from "../db/requetesMetier";
 import { matchRecommandation } from "../services/serviceRecommandation";
+
+// Utilitaires et Design
+import { getEmotionDetails } from "../utils/EmotionMapper";
+import { getMiniJeuById } from "../utils/MiniJeuMapper";
+import COLORS from "../utils/Colors";
+import FondOnde from "../components/FondOnde";
 
 export default function ResultatQuestionnaire() {
   const { questionnaire, reinitialiserQuestionnaire } = useQuestionnaire();
 
   const {
-    idEnfant,
-    prenom,
-    
-    idEmotion,
-    emotionLabel,
-    intensiteEmotion,
-    
-    idSignalCorporel,
-    signalLabel,
-
-    idLieu,
-    lieuLabel,
+    idEnfant, prenom, idEmotion, emotionLabel, intensiteEmotion,
+    idSignalCorporel, signalLabel, idLieu, lieuLabel,
   } = questionnaire;
 
-  const resultat = useMemo(() => {
+  // 1. On récupère la recommandation (Logique métier)
+  const recommandation = useMemo(() => {
     return matchRecommandation(idEmotion, intensiteEmotion, idSignalCorporel);
   }, [idEmotion, intensiteEmotion, idSignalCorporel]);
 
+  // 2. On récupère les infos visuelles du mini-jeu associé
+  const jeuDetails = useMemo(() => {
+    return getMiniJeuById(recommandation.idMiniJeu);
+  }, [recommandation.idMiniJeu]);
+
+  // 3. On récupère la couleur de l'émotion pour le thème de la page
+  const emotionTheme = getEmotionDetails(emotionLabel) || { color: COLORS.primary };
+
   const lancerMiniJeu = async () => {
     try {
+      // Enregistrement en base de données
       await enregistrerQuestionnaire({
-        idEnfant,
-        prenom,
-        idEmotion,
-        emotionLabel,
-        intensiteEmotion,
-        idSignalCorporel,
-        signalLabel,
-        idLieu,
-        lieuLabel,
+        idEnfant, prenom, idEmotion, emotionLabel, intensiteEmotion,
+        idSignalCorporel, signalLabel, idLieu, lieuLabel,
+        idRecommandation: recommandation.idMiniJeu // Important pour le dashboard parent !
       });
 
-      // --- MODIFICATION ICI ---
-      // On récupère l'idMiniJeu calculé par ton moteur de recommandation
-      const idJeu = resultat.idMiniJeu; 
+      const routeJeu = jeuDetails?.route || `/mini-jeu/${recommandation.idMiniJeu}`;
       
       reinitialiserQuestionnaire();
-
-      // On redirige vers la route dynamique avec l'ID du jeu
-      // router.replace est préférable à push pour éviter de revenir au questionnaire
-      router.replace(`/mini-jeu/${idJeu}`);
-      // -------------------------
+      router.replace(routeJeu);
 
     } catch (error) {
-      console.error("Erreur enregistrement questionnaire :", error);
+      console.error("Erreur enregistrement :", error);
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.titre}>{resultat.titre}</Text>
+    <View style={styles.mainWrapper}>
+      <FondOnde />
+      
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        
+        <View style={styles.headerSucces}>
+          <View style={[styles.cercleIcone, { backgroundColor: emotionTheme.color }]}>
+            <MaterialCommunityIcons name="check" size={40} color={COLORS.white} />
+          </View>
+          <Text style={styles.bravoTexte}>BRAVO {prenom?.toUpperCase()} !</Text>
+          <Text style={styles.sousTitre}>Tu as fini ton check-in.</Text>
+        </View>
 
-      <Text style={styles.message}>{resultat.message}</Text>
+        <View style={styles.carteResultat}>
+          <Text style={styles.messageAnalyse}>{recommandation.message}</Text>
+          
+          <View style={styles.separateur} />
+          
+          <Text style={styles.propositionTexte}>Pour t'aider, je te propose :</Text>
+          
+          {/* AFFICHAGE DU MINI-JEU ASSOCIÉ */}
+          <View style={[styles.boxJeu, { borderColor: jeuDetails?.color || emotionTheme.color }]}>
+            <View style={[styles.iconeJeuCercle, { backgroundColor: jeuDetails?.color || emotionTheme.color }]}>
+              <MaterialCommunityIcons 
+                name={jeuDetails?.icon || "star"} 
+                size={35} 
+                color={COLORS.white} 
+              />
+            </View>
+            <View style={styles.jeuInfos}>
+              <Text style={styles.jeuNom}>{jeuDetails?.titre || recommandation.miniJeu}</Text>
+              <Text style={styles.jeuSlogan}>Ta mission spéciale du jour</Text>
+            </View>
+          </View>
+        </View>
 
-      <Text style={styles.proposition}>{resultat.proposition}</Text>
+        <TouchableOpacity 
+          style={[styles.boutonAction, { backgroundColor: emotionTheme.color }]} 
+          onPress={lancerMiniJeu}
+        >
+          <Text style={styles.boutonTexte}>C'EST PARTI !</Text>
+          <MaterialCommunityIcons name="rocket-launch" size={24} color={COLORS.white} />
+        </TouchableOpacity>
 
-      <Text style={styles.miniJeu}>{resultat.miniJeu}</Text>
-
-      <TouchableOpacity style={styles.bouton} onPress={lancerMiniJeu}>
-        <Text style={styles.texteBouton}>Lancer le mini-jeu</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
-// ... Tes styles restent identiques
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    backgroundColor: "#F4F4F4",
-    paddingHorizontal: 36,
-    paddingTop: 120,
-    paddingBottom: 40,
+  mainWrapper: { flex: 1 },
+  container: { paddingHorizontal: 25, paddingTop: 150, paddingBottom: 40 },
+  
+  headerSucces: { alignItems: 'center', marginBottom: 30 },
+  cercleIcone: { width: 80, height: 80, borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: 15, elevation: 5 },
+  bravoTexte: { fontSize: 24, fontWeight: "900", color: COLORS.text, letterSpacing: 1 },
+  sousTitre: { fontSize: 16, color: COLORS.textLight, fontWeight: "600" },
+
+  carteResultat: {
+    backgroundColor: COLORS.white,
+    borderRadius: 30,
+    padding: 25,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    marginBottom: 30
   },
-  titre: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#333",
-    textAlign: "center",
-    marginBottom: 90,
+  messageAnalyse: { fontSize: 18, color: COLORS.text, textAlign: 'center', lineHeight: 26, fontWeight: "600" },
+  separateur: { height: 1, backgroundColor: '#EEE', marginVertical: 20 },
+  propositionTexte: { fontSize: 14, color: COLORS.textLight, fontWeight: "700", textAlign: 'center', marginBottom: 15, textTransform: 'uppercase' },
+
+  boxJeu: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    backgroundColor: '#F9F9F9'
   },
-  message: {
-    fontSize: 16,
-    lineHeight: 38,
-    color: "#333",
-    textAlign: "center",
-    marginBottom: 90,
+  iconeJeuCercle: { width: 60, height: 60, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
+  jeuInfos: { marginLeft: 15, flex: 1 },
+  jeuNom: { fontSize: 20, fontWeight: "900", color: COLORS.text },
+  jeuSlogan: { fontSize: 13, color: COLORS.textLight, fontWeight: "600" },
+
+  boutonAction: {
+    height: 70,
+    borderRadius: 25,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 15,
+    elevation: 6
   },
-  proposition: {
-    fontSize: 16,
-    lineHeight: 34,
-    color: "#333",
-    textAlign: "center",
-    marginBottom: 30,
-  },
-  miniJeu: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#333",
-    textAlign: "center",
-    marginBottom: 120,
-  },
-  bouton: {
-    alignSelf: "center",
-    width: "92%",
-    minHeight: 120,
-    backgroundColor: "#D9D9D9",
-    borderRadius: 24,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 3,
-  },
-  texteBouton: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: "#333",
-    textAlign: "center",
-  },
+  boutonTexte: { fontSize: 22, fontWeight: "900", color: COLORS.white, letterSpacing: 1 }
 });

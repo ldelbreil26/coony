@@ -1,166 +1,209 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, ScrollView, Switch } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import { router } from "expo-router";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-import HeaderQuestionnaire from "../components/EnteteQuestionnaire";
 import { useQuestionnaire } from "../state/QuestionnaireState";
+import { EMOTIONS_DATA } from "../utils/EmotionMapper"; 
+import COLORS from "../utils/Colors";
+import FondOnde from "../components/FondOnde";
 
 export default function Emotion() {
   const { mettreAJourQuestionnaire } = useQuestionnaire();
-
   const [emotionSelectionnee, setEmotionSelectionnee] = useState(null);
 
-  const emotions = [
-    { id: 1, label: "Joyeux" },
-    { id: 2, label: "Triste" },
-    { id: 3, label: "Calme" },
-    { id: 4, label: "En colère" },
-    { id: 5, label: "Aucun" },
-    { id: 6, label: "Angoissé" },
-  ];
+  const listeEmotions = Object.keys(EMOTIONS_DATA).map(key => ({
+    key: key,
+    ...EMOTIONS_DATA[key]
+  }));
 
   const handleValidation = () => {
     if (!emotionSelectionnee) return;
-
+    
     mettreAJourQuestionnaire({
       idEmotion: emotionSelectionnee.id,
       emotionLabel: emotionSelectionnee.label,
     });
-
     router.push("/questionnaire/intensite");
   };
 
   return (
-  <>
-    <HeaderQuestionnaire />
-    
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.intro}>
-          D’accord :){"\n"}
-          On commence doucement..
-        </Text>
+    <View style={styles.mainWrapper}>
+      <FondOnde />
+      
+      {/* HEADER AVEC BOUTON CERCLE STYLE "QUITTER" */}
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.headerNav}>
+          <TouchableOpacity 
+            style={styles.boutonCercle} 
+            onPress={() => router.back()}
+          >
+            <MaterialCommunityIcons name="arrow-left" size={26} color={COLORS.textLight} />
+          </TouchableOpacity>
+          <View style={styles.badgeEtape}>
+             <Text style={styles.titreEtape}>Étape 1 / 4</Text>
+          </View>
+        </View>
+      </SafeAreaView>
 
-        <Text style={styles.titre}>Comment tu te sens aujourd’hui ?</Text>
-
-        <Text style={styles.sousTitre}>
-          Tu peux choisir l’émotion qui te ressemble le plus.
-        </Text>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={styles.sectionTexte}>
+            <Text style={styles.intro}>Dis-moi tout...</Text>
+            <Text style={styles.titre}>Comment tu te sens ?</Text>
+        </View>
 
         <View style={styles.grille}>
-          {emotions.map((emotion) => {
+          {listeEmotions.map((emotion) => {
             const estSelectionnee = emotionSelectionnee?.id === emotion.id;
-
+            
             return (
               <TouchableOpacity
                 key={emotion.id}
                 style={[
                   styles.boutonEmotion,
-                  estSelectionnee && styles.boutonEmotionSelectionne,
+                  estSelectionnee && { 
+                    backgroundColor: emotion.color, 
+                    transform: [{ scale: 1.05 }],
+                    elevation: 10
+                  },
                 ]}
                 onPress={() => setEmotionSelectionnee(emotion)}
+                activeOpacity={0.8}
               >
-                <Text style={styles.texteBouton}>{emotion.label}</Text>
+                <View style={[
+                    styles.conteneurIcone, 
+                    { backgroundColor: estSelectionnee ? 'rgba(255,255,255,0.2)' : emotion.color + '15' }
+                ]}>
+                    <MaterialCommunityIcons 
+                        name={emotion.iconName} 
+                        size={45} 
+                        color={estSelectionnee ? COLORS.white : emotion.color} 
+                    />
+                </View>
+                <Text style={[
+                    styles.texteBouton,
+                    estSelectionnee && { color: COLORS.white }
+                ]}>
+                    {emotion.label}
+                </Text>
               </TouchableOpacity>
             );
           })}
         </View>
 
+        {/* VALIDATION DYNAMIQUE */}
         {emotionSelectionnee && (
-          <>
-            <Text style={styles.confirmation}>
-              Tu te sens : {emotionSelectionnee.label} ?
-            </Text>
-
-            <TouchableOpacity style={styles.boutonValidation} onPress={handleValidation}>
-              <Text style={styles.texteValidation}>Oui</Text>
+          <View style={styles.footer}>
+            <TouchableOpacity 
+              style={[
+                styles.boutonSuivant, 
+                { backgroundColor: emotionSelectionnee.color }
+              ]} 
+              onPress={handleValidation}
+            >
+              <Text style={styles.texteSuivant}>C'est bien ça !</Text>
+              <MaterialCommunityIcons name="check-bold" size={24} color={COLORS.white} />
             </TouchableOpacity>
-          </>
+          </View>
         )}
       </ScrollView>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  mainWrapper: { flex: 1 },
+  safeArea: { zIndex: 10 },
+  headerNav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    justifyContent: 'space-between'
+  },
+  boutonCercle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.white,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  badgeEtape: {
+    backgroundColor: 'rgba(255,255,255,0.6)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  titreEtape: {
+    fontSize: 13,
+    fontWeight: "900",
+    color: COLORS.textLight,
+    textTransform: "uppercase",
+  },
   container: {
-    flexGrow: 1,
-    backgroundColor: "#F4F4F4",
-    paddingHorizontal: 36,
-    paddingTop: 125,
+    paddingHorizontal: 25,
+    paddingTop: 30,
     paddingBottom: 40,
   },
-  intro: {
-    fontSize: 16,
-    color: "#333",
-    lineHeight: 30,
-    marginBottom: 20,
-  },
-  titre: {
-    fontSize: 25,
-    fontWeight: "700",
-    color: "#333",
-    marginBottom: 30,
-  },
-  sousTitre: {
-    fontSize: 14,
-    color: "#4A4A4A",
-    marginBottom: 40,
-    textAlign: "center",
-  },
+  sectionTexte: { marginBottom: 35 },
+  intro: { fontSize: 18, fontWeight: "600", color: COLORS.primary, marginBottom: 5 },
+  titre: { fontSize: 28, fontWeight: "900", color: COLORS.text, lineHeight: 34 },
+  
   grille: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    rowGap: 36,
-    marginBottom: 50,
+    gap: 15,
   },
   boutonEmotion: {
-    width: "46%",
-    minHeight: 64,
-    backgroundColor: "#F8F8F8",
-    borderRadius: 18,
+    width: "47%",
+    paddingVertical: 20,
+    backgroundColor: COLORS.white,
+    borderRadius: 30,
+    alignItems: "center",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  conteneurIcone: {
+    width: 75,
+    height: 75,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
-
-    shadowColor: "#000",
-    shadowOpacity: 0.14,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  boutonEmotionSelectionne: {
-    backgroundColor: "#D9D9D9",
+    marginBottom: 10,
   },
   texteBouton: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    textAlign: "center",
+    fontWeight: "900",
+    color: COLORS.text,
   },
-  confirmation: {
-    fontSize: 18,
-    color: "#333",
-    textAlign: "center",
-    marginBottom: 48,
+  footer: {
+    marginTop: 40,
+    width: '100%',
   },
-  boutonValidation: {
-    alignSelf: "center",
-    width: "92%",
-    minHeight: 120,
-    backgroundColor: "#D9D9D9",
-    borderRadius: 24,
+  boutonSuivant: {
+    height: 70,
+    borderRadius: 25,
+    flexDirection: 'row',
     justifyContent: "center",
     alignItems: "center",
-
+    gap: 12,
+    elevation: 8,
     shadowColor: "#000",
-    shadowOpacity: 0.14,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.2,
   },
-  texteValidation: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#333",
+  texteSuivant: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: COLORS.white,
+    letterSpacing: 0.5,
   },
 });

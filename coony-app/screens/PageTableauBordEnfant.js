@@ -16,22 +16,22 @@ import { getDernierQuestionnaireDuJour } from "../db/requetesMetier";
 
 // Mappers
 import { getEmotionDetails } from "../utils/EmotionMapper";
-import { getMiniJeuById } from "../utils/MiniJeuMapper"; // Ton mapper basé sur l'ID du jeu
+import { getMiniJeuById } from "../utils/MiniJeuMapper"; 
 
 // Design System
 import COLORS from "../utils/Colors";
 import FondOnde from "../components/FondOnde";
+
+// Problème dans l'affichage du mini jeu et icon !!!
 
 export default function PageDashboardEnfant() {
   const { enfantSelectionne } = useEnfantSelectionne();
   const dateDuJour = getDateDuJourFormatee();
   const [questionnaireDuJour, setQuestionnaireDuJour] = useState(null);
 
-  // Vérification et récupération du questionnaire + recommandation
   const verifierQuestionnaireDuJour = async () => {
     if (!enfantSelectionne?.id_enfant) return;
     try {
-      // Cette fonction fait maintenant le LEFT JOIN avec la table recommandation
       const trouve = await getDernierQuestionnaireDuJour(
         enfantSelectionne.id_enfant,
       );
@@ -47,7 +47,6 @@ export default function PageDashboardEnfant() {
     }, [enfantSelectionne]),
   );
 
-  // 1. On récupère les détails visuels de l'émotion (Couleur, Icône)
   const emotionDetails = getEmotionDetails(
     questionnaireDuJour?.emotion_nom,
   ) || {
@@ -56,7 +55,6 @@ export default function PageDashboardEnfant() {
     label: "Inconnu",
   };
 
-  // 2. On récupère l'activité recommandée via l'ID récupéré en jointure
   const activiteRecommandee = questionnaireDuJour?.id_recommandation
     ? getMiniJeuById(questionnaireDuJour.id_recommandation)
     : null;
@@ -164,7 +162,7 @@ export default function PageDashboardEnfant() {
               size={22}
               color={COLORS.white}
             />
-            <Text style={styles.boutonActionTexte}>FAIRE MON BILAN</Text>
+            <Text style={styles.boutonActionTexte}>QUESTIONNAIRE</Text>
             <MaterialCommunityIcons
               name="star"
               size={22}
@@ -173,70 +171,49 @@ export default function PageDashboardEnfant() {
           </TouchableOpacity>
         </View>
 
-        {activiteRecommandee ? (
-          <View style={styles.sectionSuggerer}>
-            <View style={styles.titreLigne}>
-              <Text style={styles.sectionTitrePetit}>TON MINI-JEU DU JOUR</Text>
-              <View style={styles.badgeSpecial}>
-                <Text style={styles.badgeTexte}>DÉBLOQUÉ</Text>
-              </View>
-            </View>
-
-            <TouchableOpacity
-              style={[
-                styles.carteJeuDuJour,
-                { backgroundColor: activiteRecommandee.color },
-              ]}
-              onPress={() => router.push(activiteRecommandee.route)}
-              activeOpacity={0.9}
+        {/* --- NOUVELLE SECTION JEU DU JOUR (Inspirée du Dashboard Parent) --- */}
+        <View style={styles.sectionJeuSimplifiee}>
+            <Text style={styles.sectionTitrePetit}>MINI-JEU DU JOUR</Text>
+            
+            <TouchableOpacity 
+                style={[
+                    styles.ligneActiviteEnfant, 
+                    !activiteRecommandee && styles.ligneDesactivee
+                ]}
+                onPress={() => activiteRecommandee && router.push(activiteRecommandee.route)}
+                disabled={!activiteRecommandee}
             >
-              <View style={styles.jeuContenu}>
-                <View style={styles.jeuTextes}>
-                  <Text style={styles.jeuSlogan}>Prêt pour ta mission ?</Text>
-                  <Text style={styles.jeuNom}>{activiteRecommandee.titre}</Text>
-
-                  <View style={styles.boutonJouerInterne}>
-                    <Text
-                      style={[
-                        styles.boutonJouerTexte,
-                        { color: activiteRecommandee.color },
-                      ]}
-                    >
-                      JOUER MAINTENANT
-                    </Text>
-                    <MaterialCommunityIcons
-                      name="play"
-                      size={18}
-                      color={activiteRecommandee.color}
+                <View style={[
+                    styles.iconActiviteCercle, 
+                    { backgroundColor: activiteRecommandee ? activiteRecommandee.color : COLORS.texte }
+                ]}>
+                    <MaterialCommunityIcons 
+                        name={activiteRecommandee ? activiteRecommandee.icon : "lock"} 
+                        size={24} 
+                        color={COLORS.texte} 
                     />
-                  </View>
                 </View>
-                <View style={styles.jeuIconeFond}>
-                  <MaterialCommunityIcons
-                    name={activiteRecommandee.icon}
-                    size={80}
-                    color="rgba(255,255,255,0.25)"
-                  />
+                
+                <View style={styles.contenuTexteActivite}>
+                    <Text style={styles.labelActivitePetit}>MISSION DU JOUR :</Text>
+                    <Text style={[
+                        styles.valeurActiviteGrande,
+                        { color: activiteRecommandee ? COLORS.text : COLORS.textLight }
+                    ]}>
+                        {activiteRecommandee ? activiteRecommandee.titre : "En attente du check-in"}
+                    </Text>
                 </View>
-              </View>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          /* Si pas de questionnaire, on montre que c'est verrouillé */
-          <View style={styles.rappelQuestionnaire}>
-            <MaterialCommunityIcons
-              name="lock-outline"
-              size={24}
-              color={COLORS.textLight}
-            />
-            <Text style={styles.rappelTexte}>
-              Fais ton bilan pour débloquer ton jeu spécial !
-            </Text>
-          </View>
-        )}
 
-        {/* --- AUTRES ACTIVITÉS --- */}
-        <Text style={styles.sectionTitrePetit}>AUTRES ACTIVITÉS</Text>
+                {activiteRecommandee && (
+                    <View style={[styles.badgeJouer, { backgroundColor: activiteRecommandee.color }]}>
+                        <MaterialCommunityIcons name="play" size={16} color={COLORS.white} />
+                    </View>
+                )}
+            </TouchableOpacity>
+        </View>
+
+        {/* --- AUTRES MINI-JEUX --- */}
+        <Text style={styles.sectionTitrePetit}>AUTRES MINI-JEUX</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -286,7 +263,7 @@ export default function PageDashboardEnfant() {
 }
 
 const styles = StyleSheet.create({
-  mainWrapper: { flex: 1, backgroundColor: COLORS.background },
+  mainWrapper: { flex: 1 },
   container: { padding: 24, paddingTop: 60, paddingBottom: 40 },
 
   header: {
@@ -404,80 +381,53 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 
-  // Styles Activité suggérée
-  sectionSuggerer: { marginBottom: 30 },
-  titreLigne: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 15,
-  },
-  badgeSpecial: {
-    backgroundColor: COLORS.secondary,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  badgeTexte: { color: COLORS.white, fontSize: 10, fontWeight: "900" },
-  carteJeuDuJour: {
-    borderRadius: 30,
-    padding: 25,
-    overflow: "hidden",
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-  },
-  jeuContenu: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  jeuTextes: { flex: 1, zIndex: 2 },
-  jeuSlogan: {
-    color: "rgba(255,255,255,0.85)",
-    fontSize: 12,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    marginBottom: 4,
-  },
-  jeuNom: {
-    color: COLORS.white,
-    fontSize: 24,
-    fontWeight: "900",
-    marginBottom: 18,
-  },
-  boutonJouerInterne: {
-    backgroundColor: COLORS.white,
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 14,
-    gap: 8,
-  },
-  boutonJouerTexte: { fontWeight: "900", fontSize: 13 },
-  jeuIconeFond: { position: "absolute", right: -20, bottom: -20, zIndex: 1 },
-
-  rappelQuestionnaire: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 12,
-    backgroundColor: "rgba(0,0,0,0.03)",
-    padding: 20,
-    borderRadius: 25,
-    borderStyle: "dashed",
-    borderWidth: 2,
-    borderColor: "#D1D1D1",
+  sectionJeuSimplifiee: {
     marginBottom: 30,
   },
-  rappelTexte: {
+  ligneActiviteEnfant: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.card,
+    padding: 15,
+    borderRadius: 25,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+  },
+  ligneDesactivee: {
+    opacity: 0.7,
+    backgroundColor: '#F5F5F5',
+    elevation: 0,
+  },
+  iconActiviteCercle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contenuTexteActivite: {
+    flex: 1,
+    marginLeft: 15,
+  },
+  labelActivitePetit: {
+    fontSize: 10,
+    fontWeight: "800",
     color: COLORS.textLight,
-    fontSize: 14,
-    fontWeight: "600",
-    flexShrink: 1,
+    letterSpacing: 0.5,
+  },
+  valeurActiviteGrande: {
+    fontSize: 18,
+    fontWeight: "900",
+    marginTop: 2,
+  },
+  badgeJouer: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   sectionTitrePetit: {
@@ -485,7 +435,7 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: COLORS.textLight,
     letterSpacing: 1,
-    marginBottom: 15,
+    marginBottom: 12,
     textTransform: "uppercase",
   },
   scrollActivites: { gap: 15, paddingRight: 20 },

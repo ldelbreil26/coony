@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, Animated, Easing, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import COLORS from "../../utils/Colors"; // Import de ton design system
 
-export default function Mini_Jeu_Respiration() {
+export default function MiniJeuRespirationCoony() {
   const [etape, setEtape] = useState("Prêt ?");
   const [cyclesTermines, setCyclesTermines] = useState(0);
   const [jeuFini, setJeuFini] = useState(false);
   
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  const totalCycles = 4; // Nombre de répétitions avant la fin
+  const totalCycles = 4;
 
   useEffect(() => {
     if (!jeuFini) {
@@ -24,25 +25,25 @@ export default function Mini_Jeu_Respiration() {
       return;
     }
 
-    // 1. INSPIRATION (4 secondes)
-    setEtape("inspire");
+    // --- PHASE 1 : INSPIRATION ---
+    setEtape("J'inspire...");
     Animated.timing(scaleAnim, {
-      toValue: 1.8,
+      toValue: 2, // Double de taille pour bien voir le mouvement
       duration: 4000,
-      easing: Easing.inOut(Easing.quad),
+      easing: Easing.inOut(Easing.sin), // Mouvement très organique
       useNativeDriver: true,
     }).start(() => {
       
-      // 2. PAUSE (2 secondes)
-      setEtape("bloque");
+      // --- PHASE 2 : BLOQUER ---
+      setEtape("Je bloque un instant...");
       setTimeout(() => {
         
-        // 3. EXPIRATION (4 secondes)
-        setEtape("expire");
+        // --- PHASE 3 : EXPIRATION ---
+        setEtape("J'expire doucement...");
         Animated.timing(scaleAnim, {
-          toValue: 1,
+          toValue: 1, // Retour à la taille normale
           duration: 4000,
-          easing: Easing.inOut(Easing.quad),
+          easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }).start(() => {
           setCyclesTermines(prev => prev + 1);
@@ -58,24 +59,27 @@ export default function Mini_Jeu_Respiration() {
     scaleAnim.setValue(1);
   };
 
+  // --- ÉCRAN DE FIN ---
   if (jeuFini) {
     return (
       <View style={styles.container}>
-        <View style={styles.carteJeu}>
-          <Ionicons name="checkmark-circle" size={80} color="#333" />
-          <Text style={styles.titreFin}>Bravo !</Text>
-          <Text style={styles.messageAide}>Tu as terminé tes 4 respirations. Te sens-tu plus calme ?</Text>
+        <View style={styles.carteFin}>
+          <View style={styles.cercleSucces}>
+            <MaterialCommunityIcons name="star" size={50} color="#FFD700" />
+          </View>
+          <Text style={styles.titreFin}>C'est parfait !</Text>
+          <Text style={styles.messageFin}>Ton corps est tout calme maintenant. Te sens-tu mieux ?</Text>
           
           <View style={styles.zoneBoutons}>
             <TouchableOpacity style={styles.boutonRecommencer} onPress={recommencer}>
-              <Text style={styles.texteBouton}>RECOMMENCER</Text>
+              <Text style={styles.texteBoutonGris}>RECOMMENCER</Text>
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={styles.boutonQuitterFinal} 
+              style={styles.boutonTerminer} 
               onPress={() => router.replace('/tableau_de_bord_enfant')}
             >
-              <Text style={[styles.texteBouton, {color: '#FFF'}]}>TERMINER</Text>
+              <Text style={styles.texteBoutonBlanc}>TERMINER</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -83,23 +87,21 @@ export default function Mini_Jeu_Respiration() {
     );
   }
 
+  // --- ÉCRAN DE JEU (Épuré) ---
   return (
     <View style={styles.container}>
-      <View style={styles.carteJeu}>
-        <View style={styles.headerJeu}>
-          <View style={styles.pastille}>
-            <Text style={styles.pastilleTexte}>RESPIRATION 4-4 </Text>
-          </View>
-        </View>
+      <View style={styles.zoneCentrale}>
+        
+        {/* Bulle unique, douce et centrée */}
+        <Animated.View style={[styles.bullePrincipale, { transform: [{ scale: scaleAnim }] }]}>
+          <MaterialCommunityIcons name="leaf" size={40} color="rgba(255,255,255,0.7)" />
+        </Animated.View>
 
-        <View style={styles.zoneAnimation}>
-          <Animated.View style={[styles.cercle, { transform: [{ scale: scaleAnim }] }]} />
-          <Text style={styles.instruction}>{etape}</Text>
-        </View>
+        <Text style={styles.instruction}>{etape}</Text>
+      </View>
 
-        <View style={styles.footerJeu}>
-          <Text style={styles.messageAide}>Laisse le cercle guider ...</Text>
-        </View>
+      <View style={styles.footer}>
+        <Text style={styles.guide}>Suis le mouvement de la bulle...</Text>
       </View>
     </View>
   );
@@ -108,59 +110,83 @@ export default function Mini_Jeu_Respiration() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F4F4",
-    justifyContent: "center",
-    paddingHorizontal: 24,
-  },
-  carteJeu: {
-    backgroundColor: "#D9D9D9",
-    borderRadius: 22,
-    padding: 24,
-    minHeight: 450,
+    backgroundColor: '#F1F8E9', // Le fond vert très clair
     alignItems: "center",
     justifyContent: "space-between",
-    shadowColor: "#000",
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+    paddingVertical: 120,
+    paddingHorizontal: 30
   },
-  headerJeu: { width: "100%" },
-  pastille: {
-    backgroundColor: "#F3F3F3",
-    borderRadius: 18,
-    paddingHorizontal: 18,
-    paddingVertical: 8,
-    alignSelf: 'flex-start'
+  zoneCentrale: { 
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center", 
+    width: '100%',
+    // zIndex indispensable si on met des trucs derrière
   },
-  pastilleTexte: { fontSize: 14, fontWeight: "700", color: "#333" },
-  zoneAnimation: { flex: 1, justifyContent: "center", alignItems: "center" },
-  cercle: {
+  bullePrincipale: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#F4F4F4",
-    borderWidth: 4,
-    borderColor: "#FFF",
+    backgroundColor: '#C5E1A5', // Vert tendre pour la bulle
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: "#AED581", // Ombre verte assortie
+    shadowOpacity: 0.4,
+    shadowRadius: 15,
   },
-  instruction: { position: "absolute", fontSize: 22, fontWeight: "700", color: "#333" },
-  footerJeu: { marginTop: 20 },
-  messageAide: { fontSize: 16, fontWeight: "600", color: "#333", textAlign: "center" },
+  instruction: {
+    marginTop: 130,
+    fontSize: 26,
+    fontWeight: "900",
+    color: '#33691E', // Texte en vert foncé
+    textAlign: "center",
+    letterSpacing: 0.5,
+  },
+  footer: { marginTop: 10 },
+  guide: { 
+    fontSize: 16, 
+    color: COLORS.textLight, // Gris doux pour la discrétion
+    fontWeight: "600", 
+    fontStyle: 'italic', 
+    textAlign: "center" 
+  },
+
+  // --- Styles Fin de jeu (DA Coony) ---
+  carteFin: {
+    backgroundColor: COLORS.white,
+    padding: 30,
+    borderRadius: 40,
+    alignItems: 'center',
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 15,
+  },
+  cercleSucces: {
+    width: 90, height: 90, borderRadius: 45,
+    backgroundColor: '#FFFDE7',
+    justifyContent: 'center', alignItems: 'center',
+    marginBottom: 20, borderWidth: 2, borderColor: '#FFD700'
+  },
+  titreFin: { fontSize: 26, fontWeight: "900", color: COLORS.text, marginBottom: 10 },
+  messageFin: { fontSize: 16, textAlign: 'center', color: COLORS.textLight, lineHeight: 24, marginBottom: 35 },
+  zoneBoutons: { width: '100%', gap: 15, padding : 2 },
   
-  // Styles écran de fin
-  titreFin: { fontSize: 28, fontWeight: "700", color: "#333", marginTop: 10 },
-  zoneBoutons: { width: "100%", gap: 15, marginTop: 30 },
-  boutonRecommencer: {
-    backgroundColor: "#F3F3F3",
-    paddingVertical: 18,
-    borderRadius: 20,
-    alignItems: "center",
+  boutonRecommencer: { 
+    paddingVertical: 18, 
+    borderRadius: 20, 
+    alignItems: 'center', 
+    padding : 20,
+    backgroundColor: '#F5F5F5' // Gris très clair pour le bouton secondaire
   },
-  boutonQuitterFinal: {
-    backgroundColor: "#333",
-    paddingVertical: 18,
-    borderRadius: 20,
-    alignItems: "center",
+  boutonTerminer: { 
+    paddingVertical: 18, 
+    borderRadius: 20, 
+    alignItems: 'center', 
+    backgroundColor: '#689F38', // Vert action
+    elevation: 4
   },
-  texteBouton: { fontSize: 16, fontWeight: "700", color: "#333" }
+  texteBoutonGris: { fontWeight: '800', color: COLORS.textLight, fontSize: 15 },
+  texteBoutonBlanc: { fontWeight: '800', color: COLORS.white, fontSize: 16, letterSpacing: 0.5 }
 });

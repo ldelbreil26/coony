@@ -21,7 +21,7 @@ export const EMOTIONS_DATA = {
   },
   colère: {
     id: 4,
-    label: "En colère",
+    label: "Colère",
     color: "#EF5350",
     iconName: "emoticon-angry",
   },

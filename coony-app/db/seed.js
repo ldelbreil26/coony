@@ -19,7 +19,7 @@ export async function seedCatalogues() {
     for (const [id, libelle] of liste) {
       await execSql(
         "INSERT INTO catalogue_emotions (id_emotion, libelle) VALUES (?, ?)",
-        [id, libelle]
+        [id, libelle],
       );
     }
   }
@@ -42,7 +42,7 @@ export async function seedCatalogues() {
     for (const [id, libelle] of liste) {
       await execSql(
         "INSERT INTO catalogue_signaux_corporels (id_signal_corporel, libelle) VALUES (?, ?)",
-        [id, libelle]
+        [id, libelle],
       );
     }
   }
@@ -65,30 +65,7 @@ export async function seedCatalogues() {
     for (const [id, libelle] of liste) {
       await execSql(
         "INSERT INTO catalogue_lieux (id_lieu, libelle) VALUES (?, ?)",
-        [id, libelle]
-      );
-    }
-  }
-
-  // COULEURS
-  const couleurs = await queryAll("SELECT * FROM catalogue_couleurs");
-
-  if (couleurs.length === 0) {
-    console.log("Seed couleurs");
-
-    const liste = [
-      [1, "Rouge", "#EF4444"],
-      [2, "Orange", "#F97316"],
-      [3, "Jaune", "#FACC15"],
-      [4, "Vert", "#22C55E"],
-      [5, "Bleu", "#3B82F6"],
-      [6, "Violet", "#8B5CF6"],
-    ];
-
-    for (const [id, nom, hex] of liste) {
-      await execSql(
-        "INSERT INTO catalogue_couleurs (id_couleur, nom, valeur_hex) VALUES (?, ?, ?)",
-        [id, nom, hex]
+        [id, libelle],
       );
     }
   }
@@ -113,7 +90,7 @@ export async function seedCatalogues() {
     for (const [id, type, libelle] of liste) {
       await execSql(
         "INSERT INTO catalogue_mini_jeux (id_mini_jeu, type_mj, libelle) VALUES (?, ?, ?)",
-        [id, type, libelle]
+        [id, type, libelle],
       );
     }
   }

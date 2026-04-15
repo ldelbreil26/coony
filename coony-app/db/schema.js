@@ -14,12 +14,6 @@ CREATE TABLE IF NOT EXISTS catalogue_signaux_corporels (
     libelle            TEXT NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS catalogue_couleurs (
-    id_couleur INTEGER PRIMARY KEY,
-    nom        TEXT NOT NULL UNIQUE,
-    valeur_hex TEXT NOT NULL UNIQUE
-);
-
 CREATE TABLE IF NOT EXISTS catalogue_lieux (
     id_lieu INTEGER PRIMARY KEY,
     libelle TEXT NOT NULL UNIQUE
@@ -81,16 +75,15 @@ CREATE TABLE IF NOT EXISTS questionnaire_emotionnel (
 
     -- QUESTION 1 : ÉMOTION & INTENSITÉ
     id_emotion INTEGER NOT NULL,
+
+    -- QUESTION 2 : INTENSITÉ
     intensite_emotion INTEGER NOT NULL CHECK (intensite_emotion BETWEEN 1 AND 5),
 
-    -- QUESTION 2 : ÉTAT CORPOREL
+    -- QUESTION 3 : ÉTAT CORPOREL
     id_signal_corporel INTEGER,
 
-    -- QUESTION 3 : LIEU
+    -- QUESTION 4 : LIEU
     id_lieu INTEGER,
-
-    -- QUESTION 4 : COULEUR // BONUS 
-    id_couleur INTEGER,
 
     FOREIGN KEY (id_enfant)
         REFERENCES profil_enfant(id_enfant)
@@ -107,10 +100,6 @@ CREATE TABLE IF NOT EXISTS questionnaire_emotionnel (
 
     FOREIGN KEY (id_lieu)
         REFERENCES catalogue_lieux(id_lieu)
-        ON UPDATE CASCADE,
-
-    FOREIGN KEY (id_couleur)
-        REFERENCES catalogue_couleurs(id_couleur)
         ON UPDATE CASCADE
 );
 
@@ -158,5 +147,4 @@ CREATE TABLE IF NOT EXISTS session_minijeu (
         REFERENCES catalogue_mini_jeux(id_mini_jeu)
         ON UPDATE CASCADE
 )
-
 `;

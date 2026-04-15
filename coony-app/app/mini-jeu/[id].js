@@ -1,6 +1,5 @@
-import React from 'react';
-import PageMiniJeu from '../../screens/PageMiniJeu';
+import PageMiniJeu from "../../screens/mini-jeu/PageMiniJeu";
 
-export default function RouteMiniJeu() {
+export default function MiniJeu() {
   return <PageMiniJeu />;
 }

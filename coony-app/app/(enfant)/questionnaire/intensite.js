@@ -1,5 +1,5 @@
-import QuestionIntensite from "../../../screens/PageQuestionIntensite";
+import PageQuestionIntensite from "../../../screens/enfant/questionnaire/PageQuestionIntensite";
 
 export default function Intensite() {
-  return <QuestionIntensite />;
+  return <PageQuestionIntensite />;
 }

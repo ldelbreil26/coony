@@ -1,5 +1,5 @@
-import QuestionCorps from "../../../screens/PageQuestionCorps";
+import PageQuestionCorps from "../../../screens/enfant/questionnaire/PageQuestionCorps";
 
 export default function Corps() {
-  return <QuestionCorps />;
+  return <PageQuestionCorps />;
 }

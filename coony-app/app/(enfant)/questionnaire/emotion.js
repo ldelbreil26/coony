@@ -1,5 +1,5 @@
-import QuestionEmotion from "../../../screens/PageQuestionEmotion";
+import PageQuestionEmotion from "../../../screens/enfant/questionnaire/PageQuestionEmotion";
 
 export default function Emotion() {
-  return <QuestionEmotion />;
+  return <PageQuestionEmotion />;
 }

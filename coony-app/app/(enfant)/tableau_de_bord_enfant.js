@@ -1,5 +1,5 @@
-import PageTableauBordEnfant from "../../screens/PageTableauBordEnfant";
+import PageTableauBordEnfant from "../../screens/enfant/PageTableauBordEnfant";
 
-export default function TableauBordEnfant() {
+export default function TableauDeBordEnfant() {
   return <PageTableauBordEnfant />;
 }

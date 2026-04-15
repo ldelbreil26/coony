@@ -1,5 +1,5 @@
-import ResultatQuestionnaire from "../../../screens/PageResultatQuestionnaire";
+import PageResultatQuestionnaire from "../../../screens/enfant/questionnaire/PageResultatQuestionnaire";
 
 export default function Resultat() {
-  return <ResultatQuestionnaire />;
+  return <PageResultatQuestionnaire />;
 }

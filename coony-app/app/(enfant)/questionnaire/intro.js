@@ -1,5 +1,5 @@
-import IntroQuestionnaire from "../../../screens/PageIntroQuestionnaire";
+import PageIntroQuestionnaire from "../../../screens/enfant/questionnaire/PageIntroQuestionnaire";
 
-export default function Accueil() {
-  return <IntroQuestionnaire />;
+export default function Intro() {
+  return <PageIntroQuestionnaire />;
 }

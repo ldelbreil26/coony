@@ -1,4 +1,4 @@
-import PageCompteParent from "../../screens/PageCompteParent";
+import PageCompteParent from "../../screens/parent/PageCompteParent";
 
 export default function CompteParent() {
   return <PageCompteParent />;

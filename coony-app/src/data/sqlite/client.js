@@ -22,9 +22,9 @@ export const reinitialiserDonneesUtilisateur = async () => {
       DELETE FROM sqlite_sequence WHERE name='recommandation';
     `);
     
-    console.log("✅ Toutes les données utilisateur ont été effacées !");
+    console.log("Toutes les données utilisateur ont été effacées !");
   } catch (error) {
-    console.error("❌ Erreur lors de la suppression des données :", error);
+    console.error("Erreur lors de la suppression des données :", error);
   }
 };
 

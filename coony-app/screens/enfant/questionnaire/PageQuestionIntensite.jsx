@@ -20,8 +20,6 @@ export default function IntensiteBulles() {
       iconName: "emoticon-happy",
     };
 
-  console.log(questionnaire);
-
   const niveaux = [
     { val: 1, label: "Un petit peu" },
     { val: 2, label: "Un peu" },

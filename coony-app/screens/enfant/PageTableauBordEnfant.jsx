@@ -15,7 +15,8 @@ export default function PageDashboardEnfant() {
   const { 
     questionnaireDuJour, 
     emotionDetails, 
-    activiteRecommandee 
+    activiteRecommandee,
+    miniJeux,
   } = useEnfantTableauDeBord(enfantSelectionne);
 
   const reco = activiteRecommandee;
@@ -180,31 +181,30 @@ export default function PageDashboardEnfant() {
           showsHorizontalScrollIndicator={false}
           contentCpontainerStyle={styles.scrollActivites}
         >
-          <TouchableOpacity
-            style={styles.miniCarteActivite}
-            onPress={() => router.push("/mini-jeu/1")}
-          >
-            <View style={[styles.miniIcon, { backgroundColor: "#E1F5FE" }]}>
-              <MaterialCommunityIcons name="leaf" size={22} color="#03A9F4" />
-            </View>
-            <Text style={styles.miniLabel}>Respirer</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.miniCarteActivite}>
-            <View style={[styles.miniIcon, { backgroundColor: "#FFF3E0" }]}>
-              <MaterialCommunityIcons name="brain" size={22} color="#FF9800" />
-            </View>
-            <Text style={styles.miniLabel}>Focus</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.miniCarteActivite}>
-            <View style={[styles.miniIcon, { backgroundColor: "#F3E5F5" }]}>
-              <MaterialCommunityIcons
-                name="palette"
-                size={22}
-                color="#9C27B0"
-              />
-            </View>
-            <Text style={styles.miniLabel}>Dessiner</Text>
-          </TouchableOpacity>
+          {miniJeux.map((jeu) => (
+            <TouchableOpacity
+              key={jeu.id}
+              style={styles.miniCarteActivite}
+              onPress={() => router.push(jeu.route)}
+            >
+              <View
+                style={[
+                  styles.miniIcon,
+                  { backgroundColor: `${jeu.color}20` }, // léger fond
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name={jeu.icon}
+                  size={22}
+                  color={jeu.color}
+                />
+              </View>
+
+              <Text style={styles.miniLabel}>
+                {jeu.titre ?? "Activité"}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </ScrollView>
 
         <TouchableOpacity
@@ -407,6 +407,8 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: "center",
     elevation: 3,
+    alignItems: "center",
+    justifyContent: "center"
   },
   miniIcon: {
     width: 45,
@@ -416,7 +418,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  miniLabel: { fontSize: 13, fontWeight: "800", color: COLORS.text },
+  miniLabel: { fontSize: 13, fontWeight: "800", color: COLORS.text, textAlign: "center" },
 
   carteCatalogue: {
     backgroundColor: COLORS.secondary,

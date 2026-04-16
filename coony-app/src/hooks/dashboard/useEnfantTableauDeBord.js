@@ -1,9 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useFocusEffect } from "expo-router";
 import { getDernierQuestionnaire } from "../../data/repositories/questionnaire.repo";
 import { fetchMiniJeu } from "../../utils/mapper/miniJeuMapper";
 import { mapEmotion } from "../../utils/mapper/emotionMapper";
 import { getRecommandation } from "../../data/repositories/recommendation.repo";
+import { MINI_JEUX_UI } from "../../utils/mapper/miniJeuMapper";
 
 export const useEnfantTableauDeBord = (enfantSelectionne) => {
   const [questionnaireDuJour, setQuestionnaireDuJour] = useState(null);
@@ -40,13 +41,39 @@ export const useEnfantTableauDeBord = (enfantSelectionne) => {
     }, [enfantSelectionne]),
   );
 
+  const [miniJeux, setMiniJeux] = useState([]);
   const emotionDetails = mapEmotion(questionnaireDuJour?.id_emotion);
+
+  const getRandomMiniJeuxIds = (count = 3) => {
+  if (!MINI_JEUX_UI) return [];
+
+  const ids = Object.keys(MINI_JEUX_UI).map(Number);
+
+  return ids
+    .sort(() => Math.random() - 0.5)
+    .slice(0, count);
+};
+
+  useEffect(() => {
+    const load = async () => {
+      const ids = getRandomMiniJeuxIds(3);
+
+      const jeux = await Promise.all(
+        ids.map((id) => fetchMiniJeu(id))
+      );
+
+      setMiniJeux(jeux);
+    };
+
+    load();
+  }, []);
 
   return {
     questionnaireDuJour,
     emotionDetails,
     activiteRecommandee,
     chargement,
+    miniJeux,
     rafraichir: verifierQuestionnaireDuJour,
   };
 };

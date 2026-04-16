@@ -36,21 +36,21 @@ export default function ResultatQuestionnaire() {
   const emotionTheme = getEmotionDetails(emotionLabel) || { color: COLORS.primary };
 
   const lancerMiniJeu = async () => {
-  try {
-    const idQuestionnaire = await creerQuestionnaire({
-      idEnfant, idEmotion, intensiteEmotion, idSignalCorporel, idLieu,
-    });
+    try {
+      const idQuestionnaire = await creerQuestionnaire({
+        idEnfant, idEmotion, intensiteEmotion, idSignalCorporel, idLieu,
+      });
 
-    await creerRecommandation(idQuestionnaire, nowSqlite(), recommandation.idMiniJeu);
+      await creerRecommandation(idQuestionnaire, nowSqlite(), recommandation.idMiniJeu);
 
-    const routeJeu = jeuDetails?.route || `/mini-jeu/${recommandation.idMiniJeu}`;
-    router.replace(routeJeu);
-    reinitialiserQuestionnaire();
+      const routeJeu = jeuDetails?.route || `/mini-jeu/${recommandation.idMiniJeu}`;
+      router.replace(routeJeu);
+      reinitialiserQuestionnaire();
 
-  } catch (error) {
-    console.error("Erreur enregistrement :", error);
-  }
-};
+    } catch (error) {
+      console.error("Erreur enregistrement :", error);
+    }
+  };
 
   return (
     <View style={styles.mainWrapper}>

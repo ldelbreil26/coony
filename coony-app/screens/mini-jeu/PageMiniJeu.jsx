@@ -8,15 +8,23 @@ import MiniJeuRespiration from "../../src/components/Mini_Jeux/Mini_Jeu_Respirat
 import { fetchMiniJeu } from "../../src/utils/mapper/miniJeuMapper";
 import COLORS from "../../src/utils/colors";
 
-
 export default function PageConteneurMiniJeu() {
   const { id } = useLocalSearchParams();
+
   const [jeuInfo, setJeuInfo] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const chargerInfo = async () => {
-      const info = await fetchMiniJeu(id);
-      setJeuInfo(info);
+      setLoading(true);
+      try {
+        const info = await fetchMiniJeu(id);
+        setJeuInfo(info);
+      } catch (error) {
+        console.error("Erreur lors du chargement du jeu:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     chargerInfo();
   }, [id]);
@@ -25,15 +33,25 @@ export default function PageConteneurMiniJeu() {
     router.replace('/tableau_de_bord_enfant'); 
   };
 
+  if (loading) {
+    return (
+      <View style={[styles.mainContainer, styles.centered]}>
+         <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   const renderGame = () => {
-    switch (id.toString()) {
+    switch (id?.toString()) {
       case '1':
         return <MiniJeuRespiration />;
 
       default:
+        const maintenanceColor = jeuInfo?.color || COLORS.gray || '#E0E0E0';
+        
         return (
           <View style={styles.containerFallback}>
-            <View style={[styles.cercleIcone, { backgroundColor: jeuInfo?.color || '#E0E0E0' }]}>
+            <View style={[styles.cercleIcone, { backgroundColor: maintenanceColor }]}>
               <MaterialCommunityIcons 
                 name={jeuInfo?.icon || "hammer-wrench"} 
                 size={60} 
@@ -48,7 +66,7 @@ export default function PageConteneurMiniJeu() {
             </Text>
             
             <TouchableOpacity 
-              style={[styles.boutonRetour, { backgroundColor: jeuInfo?.color || COLORS.primary }]} 
+              style={[styles.boutonRetour, { backgroundColor: maintenanceColor }]} 
               onPress={quitterJeu}
             >
               <Text style={styles.texteBouton}>Retourner au tableau de bord</Text>
@@ -60,14 +78,9 @@ export default function PageConteneurMiniJeu() {
 
   return (
     <View style={styles.mainContainer}>
-      <TouchableOpacity 
-        style={styles.boutonFermer} 
-        onPress={quitterJeu}
-        activeOpacity={0.7}
-      >
+      <TouchableOpacity style={styles.boutonFermer} onPress={quitterJeu}>
         <MaterialCommunityIcons name="close-circle" size={45} color={COLORS.textLight} />
       </TouchableOpacity>
-
       {renderGame()}
     </View>
   );

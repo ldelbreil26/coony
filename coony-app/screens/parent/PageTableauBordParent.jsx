@@ -28,8 +28,6 @@ export default function PageTableauBordParent() {
     activiteRecommandee,
   } = useParentTableauDeBord(parentConnecte);
 
-  console.log(activiteRecommandee);
-
   return (
     <View style={styles.mainWrapper}>
       <FondOnde />

@@ -7,7 +7,7 @@ export const useParentTableauDeBord = (parentConnecte) => {
   const [enfants, setEnfants] = useState([]);
   const [enfantSelectionne, setEnfantSelectionne] = useState(null);
   const [questionnaires, setQuestionnaires] = useState([]);
-  const [chargement, setChargement] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Renommé pour correspondre à la vue
 
   const chargerHistorique = async (idEnfant) => {
     try {
@@ -18,42 +18,48 @@ export const useParentTableauDeBord = (parentConnecte) => {
     }
   };
 
-  const chargerListeEnfants = async () => {
+  const chargerDonneesInitiales = async () => {
+    if (!parentConnecte?.id_parent) return;
+
     try {
-      if (!parentConnecte?.id_parent) return;
-      setChargement(true);
+      setIsLoading(true);
       const liste = await listerEnfantsDuParent(parentConnecte.id_parent);
       setEnfants(liste);
 
       if (liste.length > 0) {
-        const currentSelection = enfantSelectionne || liste[0];
-        setEnfantSelectionne(currentSelection);
-        await chargerHistorique(currentSelection.id_enfant);
+        // On garde l'enfant déjà sélectionné s'il existe toujours dans la nouvelle liste
+        const enfantARecupérer = enfantSelectionne 
+          ? liste.find(e => e.id_enfant === enfantSelectionne.id_enfant) || liste[0]
+          : liste[0];
+        
+        setEnfantSelectionne(enfantARecupérer);
+        await chargerHistorique(enfantARecupérer.id_enfant);
       }
     } catch (error) {
-      console.error("Erreur chargement enfants :", error);
+      console.error("Erreur chargement tableau de bord :", error);
     } finally {
-      setChargement(false);
+      setIsLoading(false);
     }
   };
 
   useFocusEffect(
     useCallback(() => {
-      chargerListeEnfants();
-    }, [parentConnecte])
+      chargerDonneesInitiales();
+    }, [parentConnecte?.id_parent]) // Dépendance plus précise
   );
 
-  const changerEnfant = (enfant) => {
+  const changerEnfant = async (enfant) => {
     setEnfantSelectionne(enfant);
-    chargerHistorique(enfant.id_enfant);
+    // On peut mettre un petit état de chargement local ici si l'historique est long à charger
+    await chargerHistorique(enfant.id_enfant);
   };
 
   return {
     enfants,
     enfantSelectionne,
     questionnaires,
-    chargement,
+    isLoading, // On retourne isLoading
     changerEnfant,
-    rafraichir: chargerListeEnfants
+    rafraichir: chargerDonneesInitiales
   };
 };

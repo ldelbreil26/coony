@@ -8,13 +8,6 @@ import { getDateDuJourFormatee } from "../../src/utils/date";
 import COLORS from "../../src/utils/colors";
 import FondOnde from "../../src/components/FondOnde";
 
-import PageHeader from "../../src/components/common/PageHeader";
-import Card from "../../src/components/common/Card";
-import Pastille from "../../src/components/common/Pastille";
-import EmotionSummary from "../../src/components/dashboard/EmotionSummary";
-import ActivityCard from "../../src/components/dashboard/ActivityCard";
-import Button from "../../src/components/common/Button";
-
 import { useEnfantTableauDeBord } from "../../src/hooks/dashboard/useEnfantTableauDeBord";
 
 export default function PageDashboardEnfant() {
@@ -24,7 +17,9 @@ export default function PageDashboardEnfant() {
     emotionDetails, 
     activiteRecommandee 
   } = useEnfantTableauDeBord(enfantSelectionne);
-  
+
+  const reco = activiteRecommandee;
+  console.log(reco);
   const dateDuJour = getDateDuJourFormatee();
 
   return (
@@ -35,18 +30,31 @@ export default function PageDashboardEnfant() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        <PageHeader 
-          subtitle="Coucou,"
-          title={enfantSelectionne?.prenom || "Ami"}
-        />
-
-        <Card style={styles.carteMood}>
-          <View style={styles.headerCarte}>
-            <Pastille 
-              text="MON MOOD DU JOUR" 
-              color="#FFF3E0" 
-              textColor={COLORS.primary}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.salutation}>Coucou,</Text>
+            <Text style={styles.prenom}>
+              {enfantSelectionne?.prenom || "Ami"}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.boutonHome}
+            onPress={() => router.push("/menu")}
+          >
+            <MaterialCommunityIcons
+              name="home-variant"
+              size={26}
+              color={COLORS.primary}
             />
+          </TouchableOpacity>
+        </View>
+
+        {/* --- CARTE MOOD DU JOUR --- */}
+        <View style={styles.carteMood}>
+          <View style={styles.headerCarte}>
+            <View style={styles.pastille}>
+              <Text style={styles.pastilleTexte}>MON MOOD DU JOUR</Text>
+            </View>
             <Text style={styles.dateTexte}>{dateDuJour}</Text>
           </View>
 
@@ -57,12 +65,39 @@ export default function PageDashboardEnfant() {
             ]}
           >
             {questionnaireDuJour ? (
-              <EmotionSummary 
-                emotion={questionnaireDuJour.emotion_nom}
-                intensity={questionnaireDuJour.intensite_emotion}
-                details={emotionDetails}
-                bodyResponse={questionnaireDuJour.corps_nom}
-              />
+              <View style={styles.resultatContainer}>
+                <MaterialCommunityIcons
+                  name={emotionDetails.iconName}
+                  size={80}
+                  color={emotionDetails.color}
+                />
+                <Text
+                  style={[styles.emotionTitre, { color: emotionDetails.color }]}
+                >
+                  {questionnaireDuJour.emotion_nom}
+                </Text>
+
+                <View style={styles.grilleInfos}>
+                  <View style={styles.infoBulle}>
+                    <Text style={styles.infoLabel}>INTENSITÉ</Text>
+                    <Text
+                      style={[
+                        styles.infoValeur,
+                        { color: emotionDetails.color },
+                      ]}
+                    >
+                      {questionnaireDuJour.intensite_emotion}/5
+                    </Text>
+                  </View>
+                  <View style={styles.separateurV} />
+                  <View style={styles.infoBulle}>
+                    <Text style={styles.infoLabel}>DANS MON CORPS</Text>
+                    <Text style={styles.infoValeur}>
+                      {questionnaireDuJour.corps_nom || "Tranquille"}
+                    </Text>
+                  </View>
+                </View>
+              </View>
             ) : (
               <View style={styles.resultatVide}>
                 <MaterialCommunityIcons
@@ -77,40 +112,78 @@ export default function PageDashboardEnfant() {
             )}
           </View>
 
-          <Button 
-            title="QUESTIONNAIRE"
+          <TouchableOpacity
+            style={styles.boutonActionFort}
             onPress={() =>
               router.push(
                 `/questionnaire/intro?prenom=${enfantSelectionne?.prenom}&idEnfant=${enfantSelectionne?.id_enfant}`,
               )
             }
-            icon={() => <MaterialCommunityIcons name="star" size={22} color={COLORS.white} />}
-            style={styles.boutonActionFort}
-          />
-        </Card>
+          >
+            <MaterialCommunityIcons
+              name="star"
+              size={22}
+              color={COLORS.white}
+            />
+            <Text style={styles.boutonActionTexte}>QUESTIONNAIRE</Text>
+            <MaterialCommunityIcons
+              name="star"
+              size={22}
+              color={COLORS.white}
+            />
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.sectionJeuSimplifiee}>
             <Text style={styles.sectionTitrePetit}>MINI-JEU DU JOUR</Text>
             
-            <ActivityCard 
-              title={activiteRecommandee ? activiteRecommandee.titre : "En attente du check-in"}
-              label="MISSION DU JOUR :"
-              icon={activiteRecommandee ? activiteRecommandee.icon : "lock"}
-              color={activiteRecommandee ? activiteRecommandee.color : COLORS.textLight}
-              onPress={() => activiteRecommandee && router.push(activiteRecommandee.route)}
-              disabled={!activiteRecommandee}
-            />
+            <TouchableOpacity 
+                style={[
+                    styles.ligneActiviteEnfant, 
+                    !reco && styles.ligneDesactivee
+                ]}
+                onPress={() => reco && router.push(reco.route)}
+                disabled={!reco}
+            >
+                <View style={[
+                    styles.iconActiviteCercle, 
+                    { backgroundColor: reco ? reco.color : COLORS.texte }
+                ]}>
+                    <MaterialCommunityIcons 
+                        name={reco ? reco.icon : "lock"} 
+                        size={24} 
+                        color={COLORS.texte} 
+                    />
+                </View>
+                
+                <View style={styles.contenuTexteActivite}>
+                    <Text style={styles.labelActivitePetit}>MISSION DU JOUR :</Text>
+                    <Text style={[
+                        styles.valeurActiviteGrande,
+                        { color: reco ? COLORS.text : COLORS.textLight }
+                    ]}>
+                        {reco ? reco.titre : "En attente du check-in"}
+                    </Text>
+                </View>
+
+                {reco && (
+                    <View style={[styles.badgeJouer, { backgroundColor: reco.color }]}>
+                        <MaterialCommunityIcons name="play" size={16} color={COLORS.white} />
+                    </View>
+                )}
+            </TouchableOpacity>
         </View>
 
+        {/* --- AUTRES MINI-JEUX --- */}
         <Text style={styles.sectionTitrePetit}>AUTRES MINI-JEUX</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollActivites}
+          contentCpontainerStyle={styles.scrollActivites}
         >
           <TouchableOpacity
             style={styles.miniCarteActivite}
-            onPress={() => router.push("/mini-jeu/respiration")}
+            onPress={() => router.push("/mini-jeu/1")}
           >
             <View style={[styles.miniIcon, { backgroundColor: "#E1F5FE" }]}>
               <MaterialCommunityIcons name="leaf" size={22} color="#03A9F4" />
@@ -135,13 +208,17 @@ export default function PageDashboardEnfant() {
           </TouchableOpacity>
         </ScrollView>
 
-        <Button 
-          title="Catalogue des émotions"
-          onPress={() => router.push("/catalogue")}
-          type="secondary"
-          icon={() => <MaterialCommunityIcons name="book-open-page-variant" size={24} color={COLORS.white} />}
+        <TouchableOpacity
           style={styles.carteCatalogue}
-        />
+          onPress={() => router.push("/catalogue")}
+        >
+          <MaterialCommunityIcons
+            name="book-open-page-variant"
+            size={24}
+            color={COLORS.white}
+          />
+          <Text style={styles.texteCatalogue}>Catalogue des émotions</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -151,8 +228,38 @@ const styles = StyleSheet.create({
   mainWrapper: { flex: 1 },
   container: { padding: 24, paddingTop: 60, paddingBottom: 40 },
 
-  carteMood: {
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 25,
+  },
+  salutation: { fontSize: 16, fontWeight: "600", color: COLORS.textLight },
+  prenom: {
+    fontSize: 28,
+    fontWeight: "900",
+    color: COLORS.primary,
+    marginTop: -5,
+  },
+  boutonHome: {
+    width: 50,
+    height: 50,
+    borderRadius: 18,
+    backgroundColor: COLORS.card,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4,
+  },
+
+  carteMood: {
+    backgroundColor: COLORS.card,
+    borderRadius: 32,
+    padding: 20,
+    marginBottom: 25,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
   },
   headerCarte: {
     flexDirection: "row",
@@ -160,6 +267,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 15,
   },
+  pastille: {
+    backgroundColor: "#FFF3E0",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+  },
+  pastilleTexte: { fontWeight: "900", fontSize: 11, color: COLORS.primary },
   dateTexte: { fontSize: 12, fontWeight: "700", color: COLORS.textLight },
 
   zoneCentrale: {
@@ -169,6 +283,38 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
   },
+  resultatContainer: { alignItems: "center", width: "100%" },
+  emotionTitre: {
+    fontSize: 28,
+    fontWeight: "900",
+    marginTop: 8,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+  },
+
+  grilleInfos: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 15,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: "#E0E0E0",
+    width: "100%",
+  },
+  infoBulle: { flex: 1, alignItems: "center" },
+  infoLabel: {
+    fontSize: 10,
+    color: COLORS.textLight,
+    fontWeight: "800",
+    textTransform: "uppercase",
+  },
+  infoValeur: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: COLORS.text,
+    marginTop: 4,
+  },
+  separateurV: { width: 1, height: 30, backgroundColor: "#E0E0E0" },
 
   resultatVide: { paddingVertical: 25, alignItems: "center" },
   texteVide: {
@@ -183,11 +329,67 @@ const styles = StyleSheet.create({
   boutonActionFort: {
     height: 60,
     borderRadius: 22,
+    backgroundColor: COLORS.primary,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     gap: 12,
+    elevation: 4,
+  },
+  boutonActionTexte: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: COLORS.white,
+    letterSpacing: 1,
   },
 
   sectionJeuSimplifiee: {
     marginBottom: 30,
+  },
+  ligneActiviteEnfant: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.card,
+    padding: 15,
+    borderRadius: 25,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+  },
+  ligneDesactivee: {
+    opacity: 0.7,
+    backgroundColor: '#F5F5F5',
+    elevation: 0,
+  },
+  iconActiviteCercle: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  contenuTexteActivite: {
+    flex: 1,
+    marginLeft: 15,
+  },
+  labelActivitePetit: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: COLORS.textLight,
+    letterSpacing: 0.5,
+  },
+  valeurActiviteGrande: {
+    fontSize: 18,
+    fontWeight: "900",
+    marginTop: 2,
+  },
+  badgeJouer: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   sectionTitrePetit: {
@@ -218,7 +420,15 @@ const styles = StyleSheet.create({
   miniLabel: { fontSize: 13, fontWeight: "800", color: COLORS.text },
 
   carteCatalogue: {
+    backgroundColor: COLORS.secondary,
+    borderRadius: 22,
     height: 70,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
     marginTop: 30,
+    elevation: 2,
   },
+  texteCatalogue: { color: COLORS.white, fontSize: 16, fontWeight: "800" },
 });

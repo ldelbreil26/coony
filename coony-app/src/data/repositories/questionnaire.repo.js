@@ -6,25 +6,15 @@ import {
 import { nowSqlite } from "../../utils/date";
 
 export async function creerQuestionnaire({
-  idEnfant,
-  idEmotion,
-  intensiteEmotion,
-  idSignalCorporel,
-  idLieu,
-  dateQuestionnaire,
+  idEnfant, idEmotion, intensiteEmotion, idSignalCorporel, idLieu, dateQuestionnaire,
 }) {
   const date = dateQuestionnaire ?? nowSqlite();
 
-  await insertQuestionnaire(
-    idEnfant,
-    date,
-    idEmotion,
-    intensiteEmotion,
-    idSignalCorporel,
-    idLieu
+  const id = await insertQuestionnaire(
+    idEnfant, date, idEmotion, intensiteEmotion, idSignalCorporel, idLieu
   );
 
-  return selectLastQuestionnaire(idEnfant);
+  return id;
 }
 
 export function listerQuestionnairesEnfant(idEnfant) {

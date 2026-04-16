@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { useQuestionnaire } from "../../../src/state/questionnaireState";
-import { getEmotionDetailsById } from "../../../src/utils/mapper/emotionMapper";
+import { mapEmotion } from "../../../src/utils/mapper/emotionMapper";
 import COLORS from "../../../src/utils/colors";
 import FondOnde from "../../../src/components/FondOnde";
 
@@ -15,10 +15,12 @@ export default function IntensiteBulles() {
   const [intensite, setIntensite] = useState(3);
 
   const emotionDetails =
-    getEmotionDetailsById(questionnaire?.idEmotion) || {
+    mapEmotion(questionnaire?.idEmotion) || {
       color: COLORS.primary,
-      iconName: "emoticon-outline",
+      iconName: "emoticon-happy",
     };
+
+  console.log(questionnaire);
 
   const niveaux = [
     { val: 1, label: "Un petit peu" },
@@ -143,3 +145,77 @@ export default function IntensiteBulles() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  mainWrapper: { flex: 1 },
+  safeArea: { zIndex: 10 },
+  headerNav: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 10, justifyContent: 'space-between' },
+  boutonCercle: {
+    width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.white,
+    justifyContent: "center", alignItems: "center", elevation: 3,
+  },
+  badgeEtape: { backgroundColor: 'rgba(255,255,255,0.6)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  titreEtape: { fontSize: 13, fontWeight: "900", color: COLORS.textLight, textTransform: "uppercase" },
+  
+  container: { flex: 1, paddingHorizontal: 25, paddingBottom: 30, justifyContent: 'space-between' },
+  sectionTexte: { marginTop: 20 },
+  intro: { fontSize: 18, fontWeight: "600", color: COLORS.primary, marginBottom: 5 },
+  titre: { fontSize: 28, fontWeight: "900", color: COLORS.text, lineHeight: 34 },
+
+  // Zone Bulles
+  zoneBulles: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: height * 0.5,
+    marginVertical: 20,
+  },
+  illustration: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cercleIcone: {
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    borderWidth: 3,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    elevation: 3
+  },
+
+  // Liste Bulles
+  listeBulles: {
+    flex: 1,
+    gap: 12,
+    alignItems: 'flex-end', // Aligné à droite
+  },
+  bulleIntensite: {
+    backgroundColor: COLORS.white,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 5,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    minWidth: 160,
+  },
+  texteBulle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: COLORS.text,
+    textAlign: 'center',
+  },
+
+  footer: { width: '100%', marginTop: 'auto' },
+  boutonSuivant: { height: 65, borderRadius: 22, flexDirection: 'row', justifyContent: "center", alignItems: "center", gap: 10, elevation: 4 },
+  texteSuivant: { fontSize: 20, fontWeight: "900", color: COLORS.white }
+});

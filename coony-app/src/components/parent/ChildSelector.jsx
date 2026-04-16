@@ -1,7 +1,6 @@
-import { ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import COLORS from '../../utils/colors';
-import { View } from 'react-native-reanimated/lib/typescript/Animated';
 
 const ChildSelector = ({ children, selectedChildId, onSelectChild, onAddChild }) => {
   return (

@@ -13,12 +13,12 @@ export default function QuestionCorps() {
   const [signalSelectionne, setSignalSelectionne] = useState(null);
 
   const signaux = [
-    { id: 1, label: "Tranquille", icon: "potted-plant", color: "#A5D6A7" },
-    { id: 2, label: "Cœur qui bat vite", icon: "heart-pulse", color: "#EF9A9A" },
-    { id: 3, label: "Mal au ventre", icon: "emoticon-confused-outline", color: "#FFCC80" },
-    { id: 4, label: "Boule dans la gorge", icon: "Waves", color: "#CE93D8" },
-    { id: 5, label: "Muscles serrés", icon: "arm-flex", color: "#90CAF9" },
-    { id: 6, label: "Envie de bouger", icon: "run", color: "#FBC02D" },
+    { id: 1, label: "Coeur rapide", icon: "heart-pulse" },
+    { id: 2, label: "Tout va bien", icon: "emoticon-neutral-outline" },
+    { id: 3, label: "Ventre serré", icon: "vibrate" },
+    { id: 4, label: "Corps tendu", icon: "lightning-bolt" },
+    { id: 5, label: "Fatigué", icon: "sleep" },
+    { id: 6, label: "Je ne sais pas", icon: "help-circle-outline" }
   ];
 
   const handleValidation = () => {
@@ -52,18 +52,19 @@ export default function QuestionCorps() {
             return (
               <TouchableOpacity
                 key={item.id}
+                activeOpacity={0.8}
                 style={[
                   styles.carte,
-                  estSelectionne && { borderColor: item.color, backgroundColor: item.color + '10', elevation: 6 }
+                  estSelectionne && styles.carteSelectionnee
                 ]}
                 onPress={() => setSignalSelectionne(item)}
               >
                 <MaterialCommunityIcons 
                   name={item.icon} 
                   size={40} 
-                  color={estSelectionne ? item.color : COLORS.textLight} 
+                  color={estSelectionne ? COLORS.primary : COLORS.textLight} 
                 />
-                <Text style={[styles.label, estSelectionne && { color: item.color, fontWeight: "900" }]}>
+                <Text style={[styles.label, estSelectionne && styles.labelSelectionne]}>
                   {item.label}
                 </Text>
               </TouchableOpacity>
@@ -98,11 +99,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 15,
-    elevation: 3,
+    elevation: 2,
     borderWidth: 2,
-    borderColor: 'transparent'
+    borderColor: 'transparent',
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 }
   },
-  label: { marginTop: 12, fontSize: 14, color: COLORS.text, textAlign: 'center', fontWeight: "700" },
+  carteSelectionnee: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.white, // On garde le fond blanc ou COLORS.card pour la clarté
+    elevation: 8,
+    shadowOpacity: 0.2,
+  },
+  label: { 
+    marginTop: 12, 
+    fontSize: 14, 
+    color: COLORS.textLight, 
+    textAlign: 'center', 
+    fontWeight: "600" 
+  },
+  labelSelectionne: { 
+    color: COLORS.primary, 
+    fontWeight: "900" 
+  },
 
   boutonSuivant: {
     marginTop: 40,

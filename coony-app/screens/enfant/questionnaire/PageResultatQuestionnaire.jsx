@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -11,6 +11,8 @@ import { getEmotionDetails } from "../../../src/utils/mapper/emotionMapper";
 import { fetchMiniJeu } from "../../../src/utils/mapper/miniJeuMapper";
 import COLORS from "../../../src/utils/colors";
 import FondOnde from "../../../src/components/FondOnde";
+import { creerRecommandation } from "../../../src/data/repositories/recommendation.repo";
+import { nowSqlite } from "../../../src/utils/date";
 
 export default function ResultatQuestionnaire() {
   const { questionnaire, reinitialiserQuestionnaire } = useQuestionnaire();
@@ -24,31 +26,31 @@ export default function ResultatQuestionnaire() {
     return matchRecommandation(idEmotion, intensiteEmotion, idSignalCorporel);
   }, [idEmotion, intensiteEmotion, idSignalCorporel]);
 
-  const jeuDetails = useMemo(() => {
-    return fetchMiniJeu(recommandation.idMiniJeu);
-  }, [recommandation.idMiniJeu]);
+  const [jeuDetails, setJeuDetails] = useState(null);
+
+  useEffect(() => {
+    if (!recommandation?.idMiniJeu) return;
+    fetchMiniJeu(recommandation.idMiniJeu).then(setJeuDetails);
+  }, [recommandation?.idMiniJeu]);
 
   const emotionTheme = getEmotionDetails(emotionLabel) || { color: COLORS.primary };
 
   const lancerMiniJeu = async () => {
-    try {
-     await creerQuestionnaire({
-      idEnfant,
-      idEmotion,
-      intensiteEmotion,
-      idSignalCorporel,
-      idLieu,
+  try {
+    const idQuestionnaire = await creerQuestionnaire({
+      idEnfant, idEmotion, intensiteEmotion, idSignalCorporel, idLieu,
     });
 
-      const routeJeu = jeuDetails?.route || `/mini-jeu/${recommandation.idMiniJeu}`;
-      
-      reinitialiserQuestionnaire();
-      router.replace(routeJeu);
+    await creerRecommandation(idQuestionnaire, nowSqlite(), recommandation.idMiniJeu);
 
-    } catch (error) {
-      console.error("Erreur enregistrement :", error);
-    }
-  };
+    const routeJeu = jeuDetails?.route || `/mini-jeu/${recommandation.idMiniJeu}`;
+    router.replace(routeJeu);
+    reinitialiserQuestionnaire();
+
+  } catch (error) {
+    console.error("Erreur enregistrement :", error);
+  }
+};
 
   return (
     <View style={styles.mainWrapper}>
@@ -71,24 +73,32 @@ export default function ResultatQuestionnaire() {
           
           <Text style={styles.propositionTexte}>Pour t'aider, je te propose :</Text>
           
-          <View style={[styles.boxJeu, { borderColor: jeuDetails?.color || emotionTheme.color }]}>
-            <View style={[styles.iconeJeuCercle, { backgroundColor: jeuDetails?.color || emotionTheme.color }]}>
-              <MaterialCommunityIcons 
-                name={jeuDetails?.icon || "star"} 
-                size={35} 
-                color={COLORS.white} 
-              />
+          {jeuDetails ? (
+            <View style={[styles.boxJeu, { borderColor: jeuDetails.color || emotionTheme.color }]}>
+              <View style={[styles.iconeJeuCercle, { backgroundColor: jeuDetails.color || emotionTheme.color }]}>
+                <MaterialCommunityIcons 
+                  name={jeuDetails.icon || "star"} 
+                  size={35} 
+                  color={COLORS.white} 
+                />
+              </View>
+              <View style={styles.jeuInfos}>
+                <Text style={styles.jeuNom}>{jeuDetails.titre}</Text>
+                <Text style={styles.jeuSlogan}>Ta mission spéciale du jour</Text>
+              </View>
             </View>
-            <View style={styles.jeuInfos}>
-              <Text style={styles.jeuNom}>{jeuDetails?.titre || recommandation.miniJeu}</Text>
-              <Text style={styles.jeuSlogan}>Ta mission spéciale du jour</Text>
-            </View>
-          </View>
+          ) : (
+            <Text style={{ textAlign: 'center' }}>Préparation de ta mission...</Text>
+          )}
         </View>
 
         <TouchableOpacity 
-          style={[styles.boutonAction, { backgroundColor: emotionTheme.color }]} 
+          style={[
+            styles.boutonAction, 
+            { backgroundColor: emotionTheme.color, opacity: jeuDetails ? 1 : 0.6 }
+          ]} 
           onPress={lancerMiniJeu}
+          disabled={!jeuDetails}
         >
           <Text style={styles.boutonTexte}>C'EST PARTI !</Text>
           <MaterialCommunityIcons name="rocket-launch" size={24} color={COLORS.white} />

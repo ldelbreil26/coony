@@ -27,6 +27,7 @@ export default function QuestionLieu() {
       idLieu: lieuSelectionne.id,
       lieuLabel: lieuSelectionne.label,
     });
+
     router.push("/questionnaire/resultat");
   };
 

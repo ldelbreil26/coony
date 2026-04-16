@@ -86,7 +86,7 @@ export const selectQuestionnairesByEnfant = (idEnfant) =>
   queryMany(
     `SELECT 
       q.*,
-      e.libelle AS emotion_nom,
+      e.libelle as emotion_nom, 
       l.libelle AS lieu_nom,
       s.libelle AS signal_nom
      FROM questionnaire_emotionnel q
@@ -100,10 +100,19 @@ export const selectQuestionnairesByEnfant = (idEnfant) =>
 
 export const selectLastQuestionnaire = (idEnfant) =>
   queryOne(
-    `SELECT *
-     FROM questionnaire_emotionnel
-     WHERE id_enfant = ?
-     ORDER BY date_questionnaire DESC`,
+    `SELECT 
+        q.*, 
+        e.libelle as emotion_nom, 
+        s.libelle as corps_nom,
+        s.libelle AS signal_nom
+      FROM questionnaire_emotionnel q
+      LEFT JOIN catalogue_emotions e ON q.id_emotion = e.id_emotion
+      LEFT JOIN catalogue_lieux l ON q.id_lieu = l.id_lieu
+      LEFT JOIN catalogue_signaux_corporels s ON q.id_signal_corporel = s.id_signal_corporel
+      WHERE q.id_enfant = ?
+        AND DATE(q.date_questionnaire) = DATE('now', 'localtime')
+      ORDER BY q.date_questionnaire DESC 
+      LIMIT 1`,
     [idEnfant]
   );
 

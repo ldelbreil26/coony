@@ -1,22 +1,26 @@
-import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import COLORS from '../../utils/colors';
+import { mapEmotion } from '../../utils/mapper/emotionMapper';
 
-const HistoryItem = ({ emotion, intensity, date, details, isLast }) => {
+const HistoryItem = ({ intensity, date, emotionId, isLast }) => {
+  const emotion = mapEmotion(emotionId);
+
+  const safeDate =
+    date?.split?.("-")?.[2]?.split?.(" ")?.[0] ?? "--";
+
   return (
     <View style={[styles.container, isLast && styles.noBorder]}>
-      <View style={[styles.dateBox, { backgroundColor: details.color + '20' }]}>
-         <Text style={[styles.dateText, { color: details.color }]}>
-            {date.split('-')[2].split(' ')[0]}
-         </Text>
-         <Text style={styles.monthText}>avr.</Text>
+      <View style={[styles.dateBox, { backgroundColor: emotion.color + "20" }]}>
+        <Text style={[styles.dateText, { color: emotion.color }]}>
+          {safeDate}
+        </Text>
+        <Text style={styles.monthText}>avr.</Text>
       </View>
+
       <View style={styles.content}>
-         <Text style={styles.emotionText}>{emotion}</Text>
-         <Text style={styles.subText}>Intensité : {intensity}/5</Text>
+        <Text style={styles.emotionText}>{emotion.label}</Text>
+        <Text style={styles.subText}>Intensité : {intensity}/5</Text>
       </View>
-      <MaterialCommunityIcons name="chevron-right" size={20} color={COLORS.accent} />
     </View>
   );
 };

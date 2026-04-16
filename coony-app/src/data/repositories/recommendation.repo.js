@@ -4,6 +4,8 @@ export function creerRecommandation(idQuestionnaire, date, idMiniJeu) {
   return insertRecommandation(idQuestionnaire, date, idMiniJeu);
 }
 
-export function getRecommandation(idQuestionnaire) {
-  return selectRecommandation(idQuestionnaire);
+export async function getRecommandation(idQuestionnaire) {
+  if (!idQuestionnaire) return null;
+  const row = await selectRecommandation(idQuestionnaire);
+  return row?.id_mini_jeu ?? null;
 }

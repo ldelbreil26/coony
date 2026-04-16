@@ -99,21 +99,28 @@ export const REGLES_RECOMMANDATIONS = [
 
 export function matchRecommandation(idEmotion, intensite, idSignal) {
   const match = REGLES_RECOMMANDATIONS.find(regle => {
-    const isEmotionOK = regle.id_emotion === idEmotion;
-    const isIntensiteOK = regle.intensites_valides.includes(intensite);
-    const isSignalOK = regle.signaux_valides.includes(idSignal);
-
-    return isEmotionOK && isIntensiteOK && isSignalOK;
+    return (
+      regle.id_emotion === idEmotion &&
+      regle.intensites_valides.includes(intensite) &&
+      regle.signaux_valides.includes(idSignal)
+    );
   });
 
-  if (match) {
-    return match.reponse;
-  }
+  if (match) return match.reponse;
+
+  const matchPartiel = REGLES_RECOMMANDATIONS.find(regle => {
+    return (
+      regle.id_emotion === idEmotion &&
+      regle.intensites_valides.includes(intensite)
+    );
+  });
+
+  if (matchPartiel) return matchPartiel.reponse;
 
   return {
     titre: "Je vois ce que tu ressens.",
     message: "Prends le temps d'écouter ton corps.",
     proposition: "Je te propose de te poser un instant.",
-    idMiniJeu: 1 // Renvoie vers "Respiration" par défaut car c'est le premier implémenté
+    idMiniJeu: 1,
   };
 }

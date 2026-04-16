@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { useQuestionnaire } from "../../../src/state/questionnaireState";
-import { EMOTIONS_DATA } from "../../../src/utils/mapper/emotionMapper"; 
+import { EMOTIONS } from "../../../src/utils/mapper/emotionMapper"; 
 import COLORS from "../../../src/utils/colors";
 import FondOnde from "../../../src/components/FondOnde";
 
@@ -12,9 +12,9 @@ export default function Emotion() {
   const { mettreAJourQuestionnaire } = useQuestionnaire();
   const [emotionSelectionnee, setEmotionSelectionnee] = useState(null);
 
-  const listeEmotions = Object.keys(EMOTIONS_DATA).map(key => ({
+  const listeEmotions = Object.keys(EMOTIONS).map(key => ({
     key: key,
-    ...EMOTIONS_DATA[key]
+    ...EMOTIONS[key]
   }));
 
   const handleValidation = () => {
@@ -24,6 +24,7 @@ export default function Emotion() {
       idEmotion: emotionSelectionnee.id,
       emotionLabel: emotionSelectionnee.label,
     });
+
     router.push("/questionnaire/intensite");
   };
 

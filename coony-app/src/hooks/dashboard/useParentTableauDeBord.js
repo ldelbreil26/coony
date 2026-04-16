@@ -24,10 +24,7 @@ export const useParentTableauDeBord = (parentConnecte) => {
       const listeQuestionnaires = await listerQuestionnairesEnfant(idEnfant);
       setQuestionnaires(listeQuestionnaires);
 
-      // On isole le dernier questionnaire directement depuis la liste toute neuve
       const questionnaireLePlusRecent = listeQuestionnaires.length > 0 ? listeQuestionnaires[0] : null;
-
-      // On utilise cette nouvelle variable au lieu du state 'dernierQuestionnaire'
       if(questionnaireLePlusRecent?.id_questionnaire) {
         const idMiniJeu = await getRecommandation(questionnaireLePlusRecent.id_questionnaire);
         const jeu = idMiniJeu ? await fetchMiniJeu(idMiniJeu) : null;

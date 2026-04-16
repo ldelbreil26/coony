@@ -42,8 +42,9 @@ export default function PageConteneurMiniJeu() {
   }
 
   const renderGame = () => {
-    switch (id?.toString()) {
+    switch (jeuInfo.id?.toString()) {
       case '1':
+      case 'respiration':
         return <MiniJeuRespiration />;
 
       default:

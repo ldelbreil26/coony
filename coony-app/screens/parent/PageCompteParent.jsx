@@ -7,72 +7,16 @@ import { listerEnfantsDuParent, supprimerProfilEnfant } from "../../src/data/rep
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import COLORS from "../../src/utils/colors";
 import FondOnde from "../../src/components/FondOnde";
+import { useCompteParent } from "../../src/hooks/useCompteParent";
 
 export default function PageCompteParent() {
-  const { parentConnecte } = useSessionParent();
-  const [enfants, setEnfants] = useState([]);
-
-  const chargerEnfants = async () => {
-    if (!parentConnecte?.id_parent) return;
-    try {
-      const resultat = await listerEnfantsDuParent(parentConnecte.id_parent);
-      setEnfants(resultat);
-    } catch (error) {
-      console.error("Erreur chargement enfants :", error);
-    }
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      chargerEnfants();
-    }, [parentConnecte])
-  );
-
-  const motDePasseMasque = "••••••••";
-
-  const confirmerSuppression = (enfant) => {
-    Alert.alert(
-      "Supprimer le profil",
-      `Es-tu sûr de vouloir supprimer le profil de ${enfant.prenom} ? Cette action effacera aussi son historique.`,
-      [
-        { text: "Annuler", style: "cancel" },
-        { 
-          text: "Supprimer", 
-          style: "destructive", 
-          onPress: () => handleSupprimer(enfant.id_enfant) 
-        }
-      ]
-    );
-  };
-
-  const handleSupprimer = async (idEnfant) => {
-    try {
-      await supprimerProfilEnfant(idEnfant);
-      await chargerEnfants();
-      Alert.alert("Succès", "Le profil a été supprimé.");
-    } catch (error) {
-      Alert.alert("Erreur", "Impossible de supprimer l'enfant.");
-    }
-  };
-
-  const gererDeconnexion = () => {
-      Alert.alert(
-        "Déconnexion",
-        "Es-tu sûr de vouloir te déconnecter ?",
-        [
-          { text: "Annuler", style: "cancel" },
-          { 
-            text: "Se déconnecter", 
-            style: "destructive", 
-            onPress: () => {
-              // Ici tu peux ajouter la logique pour vider ta session si nécessaire
-              router.replace("/"); // Retour à l'écran de bienvenue (racine)
-            } 
-          }
-        ]
-      );
-    };
-
+  const {
+    parentConnecte,
+    enfants,
+    motDePasseMasque,
+    confirmerSuppression,
+    gererDeconnexion,
+  } = useCompteParent();
 
   return (
     <View style={styles.mainWrapper}>

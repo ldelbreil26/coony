@@ -1,43 +1,16 @@
-import { useCallback, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
-import { router, useFocusEffect } from "expo-router";
-import { useSessionParent } from "../../src/state/sessionParent";
-import { useEnfantSelectionne } from "../../src/state/enfantSelectionne";
-import { listerEnfantsDuParent } from "../../src/data/repositories/enfant.repo";
-
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import COLORS from "../../src/utils/colors";
 import FondOnde from "../../src/components/FondOnde";
+import { useMenu } from "../../src/hooks/useMenu";
 
 export default function Menu() {
-  const { parentConnecte } = useSessionParent();
-  const { setEnfantSelectionne } = useEnfantSelectionne();
-  const [enfants, setEnfants] = useState([]);
-
-  const chargerEnfants = async () => {
-    try {
-      if (!parentConnecte?.id_parent) return;
-      const resultat = await listerEnfantsDuParent(parentConnecte.id_parent);
-      setEnfants(resultat);
-    } catch (error) {
-      console.error("Erreur chargement enfants :", error);
-    }
-  };
-
-  useFocusEffect(
-    useCallback(() => {
-      chargerEnfants();
-    }, [parentConnecte])
-  );
-
-  const allerDashboardParent = () => {
-    router.push("/tableau_de_bord_parent");
-  };
-
-  const allerDashboardEnfant = (enfant) => {
-    setEnfantSelectionne(enfant);
-    router.push("/tableau_de_bord_enfant");
-  };
+  const {
+      allerDashboardEnfant,
+      allerDashboardParent,
+      enfants,
+      router,
+  } = useMenu();
 
   return (
     <View style={styles.mainWrapper}>

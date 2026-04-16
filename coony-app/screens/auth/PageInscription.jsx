@@ -20,7 +20,7 @@ import Pastille from "../../src/components/common/Pastille";
 import Input from "../../src/components/common/Input";
 import Button from "../../src/components/common/Button";
 
-import { useInscription } from "../../src/hooks/useInscription";
+import { useInscription } from "../../src/hooks/auth/useInscription";
 
 export default function Inscription() {
   const { setParentConnecte } = useSessionParent();

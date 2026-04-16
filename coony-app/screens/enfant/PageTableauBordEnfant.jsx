@@ -19,7 +19,6 @@ export default function PageDashboardEnfant() {
   } = useEnfantTableauDeBord(enfantSelectionne);
 
   const reco = activiteRecommandee;
-  console.log(reco);
   const dateDuJour = getDateDuJourFormatee();
 
   return (

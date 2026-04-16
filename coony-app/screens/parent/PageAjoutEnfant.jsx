@@ -1,57 +1,18 @@
-import { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Alert, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
-import { creerProfilEnfant } from "../../src/data/repositories/enfant.repo";
-import { useSessionParent } from "../../src/state/sessionParent";
 
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import COLORS from "../../src/utils/colors";
 import FondOnde from "../../src/components/FondOnde";
-
-import { validateRequiredFields, validatePattern } from "../../src/utils/validator";
+import { useAjoutEnfant } from "../../src/hooks/useAjoutEnfant";
 
 export default function PageAjoutEnfant() {
-  const [prenom, setPrenom] = useState("");
-  const [dateNaissance, setDateNaissance] = useState("");
-
-  const { parentConnecte } = useSessionParent();
-  const [chargement, setChargement] = useState(false);
-
-  const handleAjoutEnfant = async () => {
-    const required = validateRequiredFields(prenom, dateNaissance,
-      { message: "Merci de remplir tous les champs" }
-    );
-
-    if (!required.valid) {
-      Alert.alert("Champs manquants", required.message);
-      return;
-    }
-
-    const dateCheck = validatePattern(dateNaissance, "dateISO", {
-      message: "Format requis : AAAA-MM-JJ (ex: 2015-05-12)",
-    });
-
-    if (!dateCheck.valid) {
-      Alert.alert("Date invalide", dateCheck.message);
-      return;
-    }
-
-    try {
-      setChargement(true);
-      await creerProfilEnfant(
-        parentConnecte.id_parent,
-        prenom.trim(),
-        dateNaissance.trim()
-      );
-
-      Alert.alert("Bienvenue !", `Le profil de ${prenom} a été créé.`);
-      router.replace("/compte_parent"); 
-    } catch (error) {
-      Alert.alert("Erreur", "Impossible d'ajouter l'enfant.");
-    } finally {
-      setChargement(false);
-    }
-  };
+  const {
+    prenom, setPrenom,
+    dateNaissance, setDateNaissance,
+    chargement,
+    handleAjoutEnfant,
+  } = useAjoutEnfant();
 
   return (
     <View style={styles.mainWrapper}>

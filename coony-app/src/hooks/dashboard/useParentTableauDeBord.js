@@ -2,17 +2,40 @@ import { useState, useCallback } from "react";
 import { useFocusEffect } from "expo-router";
 import { listerEnfantsDuParent } from "../../data/repositories/enfant.repo";
 import { listerQuestionnairesEnfant } from "../../data/repositories/questionnaire.repo";
+import { getDateDuJourFormatee } from "../../utils/date";
+import { mapEmotion } from "../../utils/mapper/emotionMapper";
+import { getRecommandation } from "../../data/repositories/recommendation.repo";
+import { fetchMiniJeu } from "../../utils/mapper/miniJeuMapper";
 
 export const useParentTableauDeBord = (parentConnecte) => {
   const [enfants, setEnfants] = useState([]);
   const [enfantSelectionne, setEnfantSelectionne] = useState(null);
+  const [activiteRecommandee, setActiviteRecommandee] = useState(null);
   const [questionnaires, setQuestionnaires] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Renommé pour correspondre à la vue
+
+  const dateDuJour = getDateDuJourFormatee();
+  
+  const dernierQuestionnaire = questionnaires.length > 0 ? questionnaires[0] : null;
+  const emotionDetails = mapEmotion(dernierQuestionnaire?.id_emotion);
 
   const chargerHistorique = async (idEnfant) => {
     try {
       const listeQuestionnaires = await listerQuestionnairesEnfant(idEnfant);
       setQuestionnaires(listeQuestionnaires);
+
+      // On isole le dernier questionnaire directement depuis la liste toute neuve
+      const questionnaireLePlusRecent = listeQuestionnaires.length > 0 ? listeQuestionnaires[0] : null;
+
+      // On utilise cette nouvelle variable au lieu du state 'dernierQuestionnaire'
+      if(questionnaireLePlusRecent?.id_questionnaire) {
+        const idMiniJeu = await getRecommandation(questionnaireLePlusRecent.id_questionnaire);
+        const jeu = idMiniJeu ? await fetchMiniJeu(idMiniJeu) : null;
+        setActiviteRecommandee(jeu);
+      } else {
+        setActiviteRecommandee(null);
+      }
+
     } catch (error) {
       console.error("Erreur chargement historique :", error);
     }
@@ -60,6 +83,10 @@ export const useParentTableauDeBord = (parentConnecte) => {
     questionnaires,
     isLoading, // On retourne isLoading
     changerEnfant,
+    dateDuJour,
+    dernierQuestionnaire,
+    emotionDetails,
+    activiteRecommandee,
     rafraichir: chargerDonneesInitiales
   };
 };

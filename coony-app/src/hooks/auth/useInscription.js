@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Alert } from "react-native";
 import { useRouter } from "expo-router";
 
-import { creerCompteParent, connecterParent } from "../data/repositories/parent.repo";
-import { validateRequiredFields, validatePattern } from "../utils/validator";
-import { creerProfilEnfant } from "../data/repositories/enfant.repo";
+import { creerCompteParent, connecterParent } from "../../data/repositories/parent.repo";
+import { validateRequiredFields, validatePattern } from "../../utils/validator";
+import { creerProfilEnfant } from "../../data/repositories/enfant.repo";
 
 export const useInscription = (setParentConnecte) => {
   const [form, setForm] = useState({

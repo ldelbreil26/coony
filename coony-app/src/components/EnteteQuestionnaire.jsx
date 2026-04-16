@@ -6,7 +6,7 @@ import { router } from "expo-router";
 
 export default function EnteteQuestionnaire({ etape }) {
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.headerNav}>
         <TouchableOpacity style={styles.boutonCercle} onPress={() => router.back()}>
           <MaterialCommunityIcons name="arrow-left" size={26} color={COLORS.textLight} />

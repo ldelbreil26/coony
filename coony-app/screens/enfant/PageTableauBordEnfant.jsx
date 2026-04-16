@@ -147,12 +147,12 @@ export default function PageDashboardEnfant() {
             >
                 <View style={[
                     styles.iconActiviteCercle, 
-                    { backgroundColor: reco ? reco.color : COLORS.texte }
+                    { backgroundColor: reco ? reco.color : COLORS.text }
                 ]}>
                     <MaterialCommunityIcons 
                         name={reco ? reco.icon : "lock"} 
                         size={24} 
-                        color={COLORS.texte} 
+                        color={COLORS.white} 
                     />
                 </View>
                 

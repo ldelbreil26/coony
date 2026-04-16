@@ -10,22 +10,26 @@ async function getDb() {
   return db;
 }
 
-export const reinitialiserDonneesUtilisateur = async () => {
-  try {
-    await execute(`
-      DELETE FROM questionnaire_emotionnel;
-      DELETE FROM recommandation;
-      -- Add any other tables that contain user progress here
-      
-      -- Optional: Reset the auto-increment counters
-      DELETE FROM sqlite_sequence WHERE name='questionnaire_emotionnel';
-      DELETE FROM sqlite_sequence WHERE name='recommandation';
-    `);
-    
-    console.log("Toutes les données utilisateur ont été effacées !");
-  } catch (error) {
-    console.error("Erreur lors de la suppression des données :", error);
-  }
+export const reinitialiserBaseDeDonnees = async () => {
+  const database = await getDb();
+  
+  await database.execAsync(`
+    PRAGMA foreign_keys = OFF;
+    DROP TABLE IF EXISTS session_minijeu;
+    DROP TABLE IF EXISTS recommandation;
+    DROP TABLE IF EXISTS questionnaire_emotionnel;
+    DROP TABLE IF EXISTS profil_enfant;
+    DROP TABLE IF EXISTS compte_parent;
+    DROP TABLE IF EXISTS catalogue_mini_jeux;
+    DROP TABLE IF EXISTS catalogue_lieux;
+    DROP TABLE IF EXISTS catalogue_signaux_corporels;
+    DROP TABLE IF EXISTS catalogue_emotions;
+    PRAGMA foreign_keys = ON;
+  `);
+
+  await initialiserBaseDeDonnees();
+  
+  console.log("Base réinitialisée !");
 };
 
 async function execute(sql, params = []) {

@@ -1,5 +1,7 @@
 export function nowSqlite() {
-  return new Date().toISOString().slice(0, 19).replace("T", " ");
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
 export function getDateDuJourFormatee() {

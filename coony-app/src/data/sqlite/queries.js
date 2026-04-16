@@ -98,22 +98,20 @@ export const selectQuestionnairesByEnfant = (idEnfant) =>
     [idEnfant]
   );
 
-export const selectLastQuestionnaire = (idEnfant) =>
+export const selectLastQuestionnaire = (idEnfant, aujourdhui) =>
   queryOne(
     `SELECT 
         q.*, 
         e.libelle as emotion_nom, 
-        s.libelle as corps_nom,
-        s.libelle AS signal_nom
+        s.libelle as corps_nom
       FROM questionnaire_emotionnel q
       LEFT JOIN catalogue_emotions e ON q.id_emotion = e.id_emotion
-      LEFT JOIN catalogue_lieux l ON q.id_lieu = l.id_lieu
       LEFT JOIN catalogue_signaux_corporels s ON q.id_signal_corporel = s.id_signal_corporel
       WHERE q.id_enfant = ?
-        AND DATE(q.date_questionnaire) = DATE('now', 'localtime')
-      ORDER BY q.date_questionnaire DESC 
+        AND SUBSTR(q.date_questionnaire, 1, 10) = ?
+      ORDER BY q.date_questionnaire DESC
       LIMIT 1`,
-    [idEnfant]
+    [idEnfant, aujourdhui]
   );
 
 // -------------------- RECOMMANDATION --------------------

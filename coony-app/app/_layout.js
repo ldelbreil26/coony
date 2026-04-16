@@ -17,17 +17,9 @@ export default function RootLayout() {
           return; 
         }
         
-        const { 
-          initialiserBaseDeDonnees, 
-          // reinitialiserDonneesUtilisateur 
-        } = await import("../src/data/sqlite/client");
-
         const { seedCatalogues } = await import("../src/data/seed/catalogues.seed");
         const { seedUsers } = await import("../src/data/seed/users.seed");
 
-        // await reinitialiserDonneesUtilisateur();
-
-        await initialiserBaseDeDonnees();
         await seedCatalogues();
         await seedUsers();
 

@@ -34,8 +34,12 @@ export default function ResultatQuestionnaire() {
   }, [recommandation?.idMiniJeu]);
 
   const emotionTheme = getEmotionDetails(emotionLabel) || { color: COLORS.primary };
+  const [enCours, setEnCours] = useState(false);
 
   const lancerMiniJeu = async () => {
+    if (enCours) return;
+    setEnCours(true);
+
     try {
       const idQuestionnaire = await creerQuestionnaire({
         idEnfant, idEmotion, intensiteEmotion, idSignalCorporel, idLieu,
@@ -99,10 +103,10 @@ export default function ResultatQuestionnaire() {
         <TouchableOpacity 
           style={[
             styles.boutonAction, 
-            { backgroundColor: emotionTheme.color, opacity: jeuDetails ? 1 : 0.6 }
+            { backgroundColor: emotionTheme.color, opacity: (jeuDetails && !enCours) ? 1 : 0.6 }
           ]} 
           onPress={lancerMiniJeu}
-          disabled={!jeuDetails}
+          disabled={!jeuDetails  || enCours}
         >
           <Text style={styles.boutonTexte}>C'EST PARTI !</Text>
           <MaterialCommunityIcons name="rocket-launch" size={24} color={COLORS.white} />

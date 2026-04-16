@@ -157,12 +157,12 @@ export default function PageDashboardEnfant() {
                 </View>
                 
                 <View style={styles.contenuTexteActivite}>
-                    <Text style={styles.labelActivitePetit}>MISSION DU JOUR :</Text>
+                    <Text style={styles.labelActivitePetit}>MINI-JEU RECOMMANDÉ :</Text>
                     <Text style={[
                         styles.valeurActiviteGrande,
                         { color: reco ? COLORS.text : COLORS.textLight }
                     ]}>
-                        {reco ? reco.titre : "En attente du check-in"}
+                        {reco ? reco.titre : "En attente du questionnaire"}
                     </Text>
                 </View>
 
@@ -190,7 +190,7 @@ export default function PageDashboardEnfant() {
               <View
                 style={[
                   styles.miniIcon,
-                  { backgroundColor: `${jeu.color}20` }, // léger fond
+                  { backgroundColor: `${jeu.color}20` },
                 ]}
               >
                 <MaterialCommunityIcons
@@ -405,6 +405,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.card,
     borderRadius: 22,
     padding: 15,
+    marginRight: 15,
     alignItems: "center",
     elevation: 3,
     alignItems: "center",

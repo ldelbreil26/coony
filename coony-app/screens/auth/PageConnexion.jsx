@@ -8,6 +8,7 @@ import {
   StyleSheet, 
   ScrollView 
 } from "react-native";
+import { router, useRouter } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 
 import COLORS from "../../src/utils/colors";

@@ -85,7 +85,7 @@ export default function QuestionCorps() {
 
 const styles = StyleSheet.create({
   mainWrapper: { flex: 1 },
-  container: { paddingHorizontal: 25, paddingTop: 30, paddingBottom: 40 },
+  container: { paddingHorizontal: 25, paddingTop: 130, paddingBottom: 40 },
   sectionTexte: { marginBottom: 30 },
   intro: { fontSize: 18, fontWeight: "600", color: COLORS.primary, marginBottom: 5 },
   titre: { fontSize: 26, fontWeight: "900", color: COLORS.text, lineHeight: 32 },

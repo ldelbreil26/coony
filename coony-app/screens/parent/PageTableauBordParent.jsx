@@ -97,9 +97,9 @@ export default function PageTableauBordParent() {
               />
             </View>
             <View>
-              <Text style={styles.labelActivite}>Activité suggérée :</Text>
+              <Text style={styles.labelActivite}>Mini-jeu suggéré :</Text>
               <Text style={styles.valeurActivite}>
-                {activiteRecommandee ? activiteRecommandee.titre : "En attente du check-in"}
+                {activiteRecommandee ? activiteRecommandee.titre : "En attente du questionnaire"}
               </Text>
             </View>
           </View> 
@@ -116,7 +116,7 @@ export default function PageTableauBordParent() {
 
         {/* HISTORIQUE */}
         <View style={styles.sectionHeader}>
-           <Text style={styles.titreSection}>Historique récent</Text>
+           <Text style={styles.titreSection}>Historique</Text>
            <MaterialCommunityIcons name="history" size={20} color={COLORS.textLight} />
         </View>
 

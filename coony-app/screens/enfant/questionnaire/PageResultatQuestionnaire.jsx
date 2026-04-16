@@ -55,9 +55,13 @@ export default function ResultatQuestionnaire() {
   return (
     <View style={styles.mainWrapper}>
       <FondOnde />
-      
+            
+      <TouchableOpacity style={styles.boutonFermer} onPress={() => router.push("/tableau_de_bord_enfant")}>
+        <MaterialCommunityIcons name="close-circle" size={45} color={COLORS.textLight} />
+      </TouchableOpacity>
+
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        
+
         <View style={styles.headerSucces}>
           <View style={[styles.cercleIcone, { backgroundColor: emotionTheme.color }]}>
             <MaterialCommunityIcons name="check" size={40} color={COLORS.white} />
@@ -103,7 +107,6 @@ export default function ResultatQuestionnaire() {
           <Text style={styles.boutonTexte}>C'EST PARTI !</Text>
           <MaterialCommunityIcons name="rocket-launch" size={24} color={COLORS.white} />
         </TouchableOpacity>
-
       </ScrollView>
     </View>
   );
@@ -118,6 +121,19 @@ const styles = StyleSheet.create({
   bravoTexte: { fontSize: 24, fontWeight: "900", color: COLORS.text, letterSpacing: 1 },
   sousTitre: { fontSize: 16, color: COLORS.textLight, fontWeight: "600" },
 
+  boutonFermer: {
+    position: 'absolute',
+    top: 50, 
+    right: 20,
+    zIndex: 9999,
+    backgroundColor: 'white',
+    borderRadius: 30,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5
+  },
+
   carteResultat: {
     backgroundColor: COLORS.white,
     borderRadius: 30,
@@ -128,6 +144,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     marginBottom: 30
   },
+
   messageAnalyse: { fontSize: 18, color: COLORS.text, textAlign: 'center', lineHeight: 26, fontWeight: "600" },
   separateur: { height: 1, backgroundColor: '#EEE', marginVertical: 20 },
   propositionTexte: { fontSize: 14, color: COLORS.textLight, fontWeight: "700", textAlign: 'center', marginBottom: 15, textTransform: 'uppercase' },

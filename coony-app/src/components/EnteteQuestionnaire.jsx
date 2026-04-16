@@ -1,38 +1,39 @@
-import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import COLORS from "../utils/colors";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
-export default function HeaderQuestionnaire() {
+export default function EnteteQuestionnaire({ etape }) {
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.bouton}
-        onPress={() => router.back()}
-      >
-        <Ionicons name="arrow-back-outline" size={26} color="#333" />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.bouton}
-        onPress={() => router.push("/tableau_de_bord_enfant")}
-      >
-        <Ionicons name="close-outline" size={28} color="#333" />
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.headerNav}>
+        <TouchableOpacity style={styles.boutonCercle} onPress={() => router.back()}>
+          <MaterialCommunityIcons name="arrow-left" size={26} color={COLORS.textLight} />
+        </TouchableOpacity>
+        <View style={styles.badgeEtape}>
+          <Text style={styles.titreEtape}>Étape {etape} / 4</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.bouton}
+          onPress={() => router.push("/tableau_de_bord_enfant")}
+        >
+          <Ionicons name="close-outline" size={28} color="#333" />
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    position: "absolute",
-    top: 55,
-    left: 24,
-    right: 24,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    zIndex: 10,
+  safeArea: { zIndex: 10 },
+  headerNav: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 10, justifyContent: 'space-between' },
+  boutonCercle: {
+    width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.white,
+    justifyContent: "center", alignItems: "center", elevation: 3,
   },
+  badgeEtape: { backgroundColor: 'rgba(255,255,255,0.6)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  titreEtape: { fontSize: 13, fontWeight: "900", color: COLORS.textLight, textTransform: "uppercase" },
 
   bouton: {
     width: 46,

@@ -7,6 +7,7 @@ import { useQuestionnaire } from "../../../src/state/questionnaireState";
 import { EMOTIONS } from "../../../src/utils/mapper/emotionMapper"; 
 import COLORS from "../../../src/utils/colors";
 import FondOnde from "../../../src/components/FondOnde";
+import EnteteQuestionnaire from "../../../src/components/EnteteQuestionnaire";
 
 export default function Emotion() {
   const { mettreAJourQuestionnaire } = useQuestionnaire();
@@ -32,19 +33,7 @@ export default function Emotion() {
     <View style={styles.mainWrapper}>
       <FondOnde />
       
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.headerNav}>
-          <TouchableOpacity 
-            style={styles.boutonCercle} 
-            onPress={() => router.back()}
-          >
-            <MaterialCommunityIcons name="arrow-left" size={26} color={COLORS.textLight} />
-          </TouchableOpacity>
-          <View style={styles.badgeEtape}>
-             <Text style={styles.titreEtape}>Étape 1 / 4</Text>
-          </View>
-        </View>
-      </SafeAreaView>
+      <EnteteQuestionnaire etape={1} />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.sectionTexte}>

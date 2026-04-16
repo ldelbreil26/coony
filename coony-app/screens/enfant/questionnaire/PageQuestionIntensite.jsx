@@ -7,6 +7,7 @@ import { useQuestionnaire } from "../../../src/state/questionnaireState";
 import { mapEmotion } from "../../../src/utils/mapper/emotionMapper";
 import COLORS from "../../../src/utils/colors";
 import FondOnde from "../../../src/components/FondOnde";
+import EnteteQuestionnaire from "../../../src/components/EnteteQuestionnaire";
 
 const { height } = Dimensions.get("window");
 
@@ -37,16 +38,7 @@ export default function IntensiteBulles() {
     <View style={styles.mainWrapper}>
       <FondOnde />
 
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.headerNav}>
-          <TouchableOpacity style={styles.boutonCercle} onPress={() => router.back()}>
-            <MaterialCommunityIcons name="arrow-left" size={26} color={COLORS.textLight} />
-          </TouchableOpacity>
-          <View style={styles.badgeEtape}>
-            <Text style={styles.titreEtape}>Étape 2 / 4</Text>
-          </View>
-        </View>
-      </SafeAreaView>
+      <EnteteQuestionnaire etape={2} />
 
       <View style={styles.container}>
         <View style={styles.sectionTexte}>
@@ -146,14 +138,6 @@ export default function IntensiteBulles() {
 
 const styles = StyleSheet.create({
   mainWrapper: { flex: 1 },
-  safeArea: { zIndex: 10 },
-  headerNav: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 10, justifyContent: 'space-between' },
-  boutonCercle: {
-    width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.white,
-    justifyContent: "center", alignItems: "center", elevation: 3,
-  },
-  badgeEtape: { backgroundColor: 'rgba(255,255,255,0.6)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
-  titreEtape: { fontSize: 13, fontWeight: "900", color: COLORS.textLight, textTransform: "uppercase" },
   
   container: { flex: 1, paddingHorizontal: 25, paddingBottom: 30, justifyContent: 'space-between' },
   sectionTexte: { marginTop: 20 },

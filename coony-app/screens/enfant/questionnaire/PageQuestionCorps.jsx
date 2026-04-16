@@ -35,10 +35,7 @@ export default function QuestionCorps() {
     <View style={styles.mainWrapper}>
       <FondOnde />
       
-      <EnteteQuestionnaire 
-        etape="3 / 4" 
-        onBack={() => router.back()} 
-      />
+      <EnteteQuestionnaire etape={3} />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.sectionTexte}>

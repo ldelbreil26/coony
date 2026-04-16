@@ -35,10 +35,7 @@ export default function QuestionLieu() {
     <View style={styles.mainWrapper}>
       <FondOnde />
       
-      <EnteteQuestionnaire 
-        etape="4 / 4" 
-        onBack={() => router.back()} 
-      />
+      <EnteteQuestionnaire etape={4} />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         <View style={styles.sectionTexte}>

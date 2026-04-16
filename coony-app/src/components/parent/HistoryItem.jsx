@@ -5,8 +5,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const HistoryItem = ({ intensity, date, emotion_nom, isLast }) => {
   const histMood = getEmotionDetails(emotion_nom) || { color: COLORS.primary };
-
-  // Safe extraction of the day
   const safeDateDay = date?.split?.("-")?.[2]?.split?.(" ")?.[0] ?? "--";
 
   return (
@@ -15,7 +13,6 @@ const HistoryItem = ({ intensity, date, emotion_nom, isLast }) => {
         <Text style={[styles.histDate, { color: histMood.color }]}>
           {safeDateDay}
         </Text>
-        {/* Note: You might want to make the month dynamic later! */}
         <Text style={styles.histMois}>avr.</Text>
       </View>
       

@@ -7,6 +7,28 @@ import { mapEmotion } from "../../utils/mapper/emotionMapper";
 import { getRecommandation } from "../../data/repositories/recommendation.repo";
 import { fetchMiniJeu } from "../../utils/mapper/miniJeuMapper";
 
+/**
+ * Hook gérant la logique du tableau de bord parent.
+ *
+ * Au focus de l'écran, charge la liste des enfants du parent, sélectionne
+ * automatiquement le dernier enfant actif, puis récupère son historique de
+ * questionnaires et l'activité recommandée associée au questionnaire le plus récent.
+ *
+ * @param {Object} parentConnecte           - Données du parent issu de la session.
+ * @param {number} parentConnecte.id_parent - Identifiant du parent connecté.
+ *
+ * @returns {Object}   L'état et les handlers du tableau de bord.
+ * @returns {Array}    .enfants               - Liste des profils enfants du parent.
+ * @returns {Object}   .enfantSelectionne     - Profil de l'enfant actuellement sélectionné.
+ * @returns {Array}    .questionnaires        - Historique des questionnaires de l'enfant sélectionné, du plus récent au plus ancien.
+ * @returns {Object}   .dernierQuestionnaire  - Questionnaire le plus récent, ou null si aucun.
+ * @returns {Object}   .emotionDetails        - Détails de l'émotion issue du dernier questionnaire.
+ * @returns {Object}   .activiteRecommandee   - Mini-jeu recommandé basé sur le dernier questionnaire, ou null.
+ * @returns {string}   .dateDuJour            - Date du jour formatée pour l'affichage.
+ * @returns {boolean}  .isLoading             - Indique si les données sont en cours de chargement.
+ * @returns {Function} .changerEnfant         - Sélectionne un enfant et recharge son historique.
+ * @returns {Function} .rafraichir            - Recharge l'ensemble des données du tableau de bord.
+ */
 export const useParentTableauDeBord = (parentConnecte) => {
   const [enfants, setEnfants] = useState([]);
   const [enfantSelectionne, setEnfantSelectionne] = useState(null);

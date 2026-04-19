@@ -6,6 +6,27 @@ import { creerCompteParent, connecterParent } from "../../data/repositories/pare
 import { validateRequiredFields, validatePattern } from "../../utils/validator";
 import { creerProfilEnfant } from "../../data/repositories/enfant.repo";
 
+/**
+ * Hook gérant la logique du formulaire d'inscription.
+ *
+ * Valide les champs saisis (email, mot de passe, profil enfant, cases de consentement),
+ * crée le compte parent, connecte automatiquement le parent créé, puis crée le profil
+ * enfant associé avant de rediriger vers le tableau de bord parent.
+ *
+ * @param {Function} setParentConnecte - Setter de la session parent, appelé après connexion réussie.
+ *
+ * @returns {Object}   L'état et les handlers du formulaire.
+ * @returns {Object}   .form                    - Valeurs courantes du formulaire.
+ * @returns {string}   .form.email              - Adresse email saisie.
+ * @returns {string}   .form.motDePasse         - Mot de passe saisi.
+ * @returns {string}   .form.prenomEnfant       - Prénom de l'enfant saisi.
+ * @returns {string}   .form.dateNaissance      - Date de naissance de l'enfant (format YYYY-MM-DD).
+ * @returns {boolean}  .form.responsableLegal   - Confirmation du statut de responsable légal.
+ * @returns {boolean}  .form.confidentialite    - Acceptation de la politique de confidentialité.
+ * @returns {Function} .updateField             - Met à jour un champ du formulaire par sa clé.
+ * @returns {Function} .handleInscription       - Déclenche la validation et le processus d'inscription.
+ * @returns {boolean}  .chargement              - Indique si la création du compte est en cours.
+ */
 export const useInscription = (setParentConnecte) => {
   const [form, setForm] = useState({
     email: "",

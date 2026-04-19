@@ -5,6 +5,19 @@ import { useFocusEffect } from "expo-router";
 import { listerEnfantsDuParent, supprimerProfilEnfant } from "../data/repositories/enfant.repo";
 import { useSessionParent } from "../state/sessionParent";
 
+/**
+ * Hook gérant la logique du compte parent.
+ *
+ * Charge la liste des enfants à chaque fois que l'écran reçoit le focus,
+ * et expose les actions de suppression de profil et de déconnexion.
+ *
+ * @returns {Object}   L'état et les handlers du compte parent.
+ * @returns {Object}   .parentConnecte       - Données du parent connecté issues de la session.
+ * @returns {Array}    .enfants              - Liste des profils enfants associés au parent.
+ * @returns {string}   .motDePasseMasque     - Mot de passe affiché masqué ("••••••••").
+ * @returns {Function} .confirmerSuppression - Affiche une alerte de confirmation avant suppression d'un profil enfant.
+ * @returns {Function} .gererDeconnexion     - Affiche une alerte de confirmation avant déconnexion.
+ */
 export function useCompteParent() {
   const { parentConnecte } = useSessionParent();
   const [enfants, setEnfants] = useState([]);

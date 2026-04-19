@@ -9,6 +9,7 @@ import {
 } from "../sqlite/queries";
 
 // -------------------- USERS SEED --------------------
+// On remplit la base de donnée avec des utilisateurs tests
 
 export async function seedUsers() {
   const email = "lydie@test.com";

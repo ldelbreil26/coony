@@ -1,5 +1,12 @@
 import { seedTable } from "../sqlite/client";
 
+// -------------------- CATALOGUES SEED --------------------
+// On remplit la base de données avec toutes les informations utilisées dans les questionnaires :
+// - Emotions
+// - Signaux Corporels
+// - Lieux
+// - Mini Jeux
+
 export async function seedCatalogues() {
   await seedTable(
     "catalogue_emotions",

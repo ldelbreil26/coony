@@ -5,6 +5,20 @@ import { creerProfilEnfant } from "../data/repositories/enfant.repo";
 import { validateRequiredFields, validatePattern } from "../utils/validator";
 import { useSessionParent } from "../state/sessionParent";
 
+/**
+ * Hook gérant la logique d'ajout d'un profil enfant.
+ *
+ * Valide les champs saisis, crée le profil en base via le repository,
+ * puis redirige vers le compte parent en cas de succès.
+ *
+ * @returns {Object} L'état et les handlers du formulaire.
+ * @returns {string}   .prenom            - Prénom saisi.
+ * @returns {Function} .setPrenom         - Met à jour le prénom.
+ * @returns {string}   .dateNaissance     - Date de naissance saisie (format AAAA-MM-JJ).
+ * @returns {Function} .setDateNaissance  - Met à jour la date de naissance.
+ * @returns {boolean}  .chargement        - Indique si la création est en cours.
+ * @returns {Function} .handleAjoutEnfant - Déclenche la validation et la création du profil.
+ */
 export function useAjoutEnfant() {
   const { parentConnecte } = useSessionParent();
   const [prenom, setPrenom] = useState("");

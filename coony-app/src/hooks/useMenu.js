@@ -4,6 +4,18 @@ import { useSessionParent } from "../state/sessionParent";
 import { listerEnfantsDuParent } from "../data/repositories/enfant.repo";
 import { router, useFocusEffect } from "expo-router";
 
+/**
+ * Hook gérant la logique du menu de sélection.
+ *
+ * Charge la liste des enfants du parent connecté à chaque focus de l'écran,
+ * et expose les navigations vers les tableaux de bord parent et enfant.
+ *
+ * @returns {Object}   L'état et les handlers du menu.
+ * @returns {Array}    .enfants                - Liste des profils enfants associés au parent.
+ * @returns {Function} .allerDashboardParent   - Navigue vers le tableau de bord parent.
+ * @returns {Function} .allerDashboardEnfant   - Sélectionne un enfant et navigue vers son tableau de bord.
+ * @returns {Object}   .router                 - Instance du router expo-router.
+ */
 export function useMenu() {
     const { parentConnecte } = useSessionParent();
     const { setEnfantSelectionne } = useEnfantSelectionne();

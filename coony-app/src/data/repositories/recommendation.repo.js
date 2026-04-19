@@ -1,3 +1,5 @@
+import { insertRecommandation, selectRecommandation } from "../sqlite/queries";
+
 /**
  * Crée une recommandation associée à un questionnaire.
  *

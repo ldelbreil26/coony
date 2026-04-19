@@ -1,3 +1,11 @@
+/**
+ * @component ResultatQuestionnaire
+ * @description Écran de synthèse finale du questionnaire enfant.
+ * Cet écran récupère les réponses stockées dans le contexte global, calcule la 
+ * recommandation la plus adaptée via le service dédié, et gère la persistance 
+ * finale en base de données avant de lancer le mini-jeu.
+ */
+
 import { useMemo, useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { router } from "expo-router";
@@ -15,6 +23,7 @@ import { creerRecommandation } from "../../../src/data/repositories/recommendati
 import { nowSqlite } from "../../../src/utils/date";
 
 export default function ResultatQuestionnaire() {
+  // Accès aux données saisies durant tout le tunnel du questionnaire
   const { questionnaire, reinitialiserQuestionnaire } = useQuestionnaire();
 
   const {
@@ -22,33 +31,53 @@ export default function ResultatQuestionnaire() {
     idSignalCorporel, signalLabel, idLieu, lieuLabel,
   } = questionnaire;
 
+  /**
+   * Calcul de la recommandation (Logique Métier).
+   * useMemo évite de recalculer si les entrées n'ont pas changé.
+   */
   const recommandation = useMemo(() => {
     return matchRecommandation(idEmotion, intensiteEmotion, idSignalCorporel);
   }, [idEmotion, intensiteEmotion, idSignalCorporel]);
 
   const [jeuDetails, setJeuDetails] = useState(null);
 
+  /**
+   * Récupération des détails visuels (titre, icône, couleur) du mini-jeu recommandé.
+   */
   useEffect(() => {
     if (!recommandation?.idMiniJeu) return;
     fetchMiniJeu(recommandation.idMiniJeu).then(setJeuDetails);
   }, [recommandation?.idMiniJeu]);
 
+  // Adaptation du thème visuel en fonction de l'émotion dominante
   const emotionTheme = getEmotionDetails(emotionLabel) || { color: COLORS.primary };
   const [enCours, setEnCours] = useState(false);
 
+  /**
+   * Procédure de finalisation :
+   * 1. Enregistre le questionnaire complété en base.
+   * 2. Enregistre la recommandation générée.
+   * 3. Réinitialise l'état global pour le prochain check-in.
+   * 4. Redirige vers l'activité suggérée.
+   */
   const lancerMiniJeu = async () => {
     if (enCours) return;
     setEnCours(true);
 
     try {
+      // Persistance du bilan émotionnel
       const idQuestionnaire = await creerQuestionnaire({
         idEnfant, idEmotion, intensiteEmotion, idSignalCorporel, idLieu,
       });
 
+      // Persistance du lien avec le mini-jeu
       await creerRecommandation(idQuestionnaire, nowSqlite(), recommandation.idMiniJeu);
 
+      // Navigation vers le mini-jeu
       const routeJeu = jeuDetails?.route || `/mini-jeu/${recommandation.idMiniJeu}`;
       router.replace(routeJeu);
+      
+      // Nettoyage du contexte global
       reinitialiserQuestionnaire();
 
     } catch (error) {
@@ -75,6 +104,7 @@ export default function ResultatQuestionnaire() {
         </View>
 
         <View style={styles.carteResultat}>
+          {/* Affichage du message pédagogique issu du moteur de recommandation */}
           <Text style={styles.messageAnalyse}>{recommandation.message}</Text>
           
           <View style={styles.separateur} />

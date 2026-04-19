@@ -15,8 +15,23 @@ import Card from "../../src/components/common/Card";
 import Button from "../../src/components/common/Button";
 import PageHeader from "../../src/components/common/PageHeader";
 
+/**
+ * Écran du Tableau de bord Parent.
+ * 
+ * Ce composant sert de hub principal pour les parents. Il leur permet de :
+ * - Basculer entre les profils de plusieurs enfants.
+ * - Consulter le dernier état émotionnel (humeur) de l'enfant sélectionné.
+ * - Voir les activités recommandées basées sur l'émotion actuelle de l'enfant.
+ * - Accéder à un journal historique des questionnaires précédents.
+ * 
+ * Il s'appuie sur le hook `useParentTableauDeBord` pour la récupération des données et la gestion de l'état
+ * relatif aux enfants du parent et à leurs réponses.
+ */
 export default function PageTableauBordParent() {
   const { parentConnecte } = useSessionParent();
+  
+  // Hook personnalisé gérant la logique complexe de récupération des enfants,
+  // d'identification de l'enfant sélectionné et de récupération de ses derniers questionnaires.
   const { 
     enfants, 
     enfantSelectionne, 
@@ -34,7 +49,7 @@ export default function PageTableauBordParent() {
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         
-        {/* HEADER : Bonjour & Boutons Navigation */}
+        {/* EN-TÊTE : Accueille le parent et permet de naviguer vers l'Accueil et les paramètres du Compte */}
         <PageHeader 
           subtitle="Bonjour,"
           title={parentConnecte?.email ? parentConnecte.email.split("@")[0] : "Parent"}
@@ -42,7 +57,7 @@ export default function PageTableauBordParent() {
           showAccount={true}
         />
 
-        {/* SELECTEUR D'ENFANT */}
+        {/* SÉLECTEUR D'ENFANT : Liste horizontale permettant au parent de basculer entre les enfants */}
         <ChildSelector
           enfants={enfants}
           selectedChildId={enfantSelectionne?.id_enfant}
@@ -50,13 +65,14 @@ export default function PageTableauBordParent() {
           onAddChild={() => router.push("/ajout_enfant")}
         />
 
-        {/* CARTE INFOS DU JOUR */}
+        {/* CARTE D'INFO DU JOUR : Résume l'humeur de l'enfant et l'activité recommandée */}
         <Card style={{ marginBottom: 25 }}>
           <View style={styles.headerCarte}>
             <Pastille text="MOOD DU JOUR" />
             <Text style={styles.enfantLabel}>{enfantSelectionne?.prenom || "---"}</Text>
           </View>
 
+          {/* AFFICHAGE DE L'ÉMOTION : Affiche l'émotion principale, l'intensité et le lieu si disponible */}
           <View style={[styles.grandBlocEmotion, { borderTopWidth: 5, borderTopColor: emotionDetails.color }]}>
             {dernierQuestionnaire ? (
               <View style={styles.emotionInfos}>
@@ -81,7 +97,7 @@ export default function PageTableauBordParent() {
                   <View style={styles.dividerVertical} />
                   <View style={styles.statItem}>
                       <Text style={styles.statLabel}>Lieu</Text>
-                      <Text style={[styles.statValeur, { color:"#5D4037" }]}>{dernierQuestionnaire.lieu_nom || "---"}</Text>
+                      <Text style={styles.statValeur} style={{ color:"#5D4037" }}>{dernierQuestionnaire.lieu_nom || "---"}</Text>
                   </View>
                 </View>
               </View>
@@ -90,6 +106,7 @@ export default function PageTableauBordParent() {
             )}
           </View>
 
+          {/* ACTIVITÉ RECOMMANDÉE : Guidée par le service de recommandation basé sur l'humeur */}
           <View style={styles.ligneActivite}>
             <View style={styles.iconActivite}>
               <MaterialCommunityIcons name={activiteRecommandee ? activiteRecommandee.icon : "auto-fix"} size={20} 
@@ -114,7 +131,7 @@ export default function PageTableauBordParent() {
           </View>
         </Card>
 
-        {/* HISTORIQUE */}
+        {/* SECTION HISTORIQUE : Liste les 5 dernières entrées émotionnelles pour l'enfant sélectionné */}
         <View style={styles.sectionHeader}>
            <Text style={styles.titreSection}>Historique</Text>
            <MaterialCommunityIcons name="history" size={20} color={COLORS.textLight} />

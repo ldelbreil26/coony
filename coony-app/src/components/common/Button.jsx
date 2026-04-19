@@ -1,6 +1,22 @@
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import COLORS from '../../utils/colors';
 
+/**
+ * Composant Bouton réutilisable pour l'application.
+ * 
+ * Ce composant offre une apparence et une sensation cohérentes pour tous les boutons,
+ * prenant en charge plusieurs styles visuels, états de chargement et icônes optionnelles.
+ * 
+ * @param {Object} props
+ * @param {Function} props.onPress - Fonction à appeler lorsque le bouton est pressé.
+ * @param {string} props.title - Le texte à afficher sur le bouton.
+ * @param {'primary' | 'secondary' | 'accent' | 'outline'} [props.type='primary'] - Le style visuel du bouton.
+ * @param {Object} [props.style] - Styles supplémentaires pour le conteneur du bouton.
+ * @param {Object} [props.textStyle] - Styles supplémentaires pour le texte du bouton.
+ * @param {boolean} [props.disabled] - Indique si le bouton est interactif.
+ * @param {boolean} [props.loading] - Indique s'il faut afficher un indicateur de chargement au lieu du texte/icône.
+ * @param {React.ElementType} [props.icon] - Un composant icône optionnel à afficher à côté du texte.
+ */
 const Button = ({ 
   onPress, 
   title, 
@@ -11,6 +27,9 @@ const Button = ({
   loading,
   icon: Icon
 }) => {
+  /**
+   * Détermine les styles d'arrière-plan et de bordure en fonction de la prop 'type'.
+   */
   const getButtonStyle = () => {
     switch (type) {
       case 'secondary': return styles.buttonSecondary;
@@ -20,6 +39,9 @@ const Button = ({
     }
   };
 
+  /**
+   * Détermine la couleur du texte en fonction de la prop 'type'.
+   */
   const getTextStyle = () => {
     switch (type) {
       case 'outline': return styles.textOutline;
@@ -34,6 +56,7 @@ const Button = ({
       disabled={disabled || loading}
     >
       {loading ? (
+        // Affiche un indicateur de chargement lorsque 'loading' est vrai pour fournir un retour sur les actions asynchrones.
         <ActivityIndicator color={type === 'outline' ? COLORS.primary : COLORS.white} />
       ) : (
         <>

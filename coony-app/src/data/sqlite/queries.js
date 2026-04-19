@@ -1,7 +1,20 @@
+/**
+ * @module Queries
+ * @description Centralisation de toutes les requêtes SQL (Data Access Object Layer).
+ * Ce fichier contient les instructions SQL brutes et utilise le client SQLite pour
+ * l'exécution. Les méthodes sont groupées par domaine fonctionnel.
+ */
+
 import { exec, queryOne, queryMany } from "./client";
 
-// -------------------- PARENT --------------------
+// -----------------------------------------------------------------------------
+// DOMAINE : PARENT
+// Gestion des comptes parents et de l'authentification
+// -----------------------------------------------------------------------------
 
+/**
+ * Insère un nouveau compte parent dans la base.
+ */
 export const insertParent = (email, hash, date) =>
   exec(
     `INSERT INTO compte_parent (email, mot_de_passe, cree_le)
@@ -9,6 +22,9 @@ export const insertParent = (email, hash, date) =>
     [email, hash, date]
   );
 
+/**
+ * Recherche un parent par son email (pour vérifier l'unicité).
+ */
 export const selectParentByEmail = (email) =>
   queryOne(
     `SELECT id_parent, email, cree_le
@@ -17,6 +33,9 @@ export const selectParentByEmail = (email) =>
     [email]
   );
 
+/**
+ * Tente d'authentifier un parent avec son email et son mot de passe haché.
+ */
 export const selectParentLogin = (email, hash) =>
   queryOne(
     `SELECT id_parent, email, cree_le
@@ -25,8 +44,14 @@ export const selectParentLogin = (email, hash) =>
     [email, hash]
   );
 
-// -------------------- ENFANT --------------------
+// -----------------------------------------------------------------------------
+// DOMAINE : ENFANT
+// Gestion des profils d'enfants rattachés à un parent
+// -----------------------------------------------------------------------------
 
+/**
+ * Ajoute un nouvel enfant à un compte parent.
+ */
 export const insertEnfant = (idParent, prenom, dateNaissance, date) =>
   exec(
     `INSERT INTO profil_enfant (id_parent, prenom, date_naissance, cree_le)
@@ -34,6 +59,9 @@ export const insertEnfant = (idParent, prenom, dateNaissance, date) =>
     [idParent, prenom, dateNaissance, date]
   );
 
+/**
+ * Liste tous les enfants rattachés à un parent spécifique.
+ */
 export const selectEnfantsByParent = (idParent) =>
   queryMany(
     `SELECT id_enfant, prenom, date_naissance, cree_le
@@ -43,6 +71,9 @@ export const selectEnfantsByParent = (idParent) =>
     [idParent]
   );
 
+/**
+ * Récupère le dernier enfant ajouté (utile après la création du profil).
+ */
 export const selectLastEnfantByParent = (idParent) =>
   queryOne(
     `SELECT id_enfant, id_parent, prenom, date_naissance, cree_le
@@ -52,16 +83,28 @@ export const selectLastEnfantByParent = (idParent) =>
     [idParent]
   );
 
+/**
+ * Supprime définitivement un profil enfant.
+ */
 export const deleteEnfant = (idEnfant) =>
   exec(`DELETE FROM profil_enfant WHERE id_enfant = ?`, [idEnfant]);
 
+/**
+ * Nettoyage des questionnaires d'un enfant (Cascade manuelle).
+ */
 export const deleteQuestionnairesByEnfant = (idEnfant) =>
   exec(`DELETE FROM questionnaire_emotionnel WHERE id_enfant = ?`, [
     idEnfant,
   ]);
 
-// -------------------- QUESTIONNAIRE --------------------
+// -----------------------------------------------------------------------------
+// DOMAINE : QUESTIONNAIRE
+// Enregistrement et lecture des bilans émotionnels quotidiens
+// -----------------------------------------------------------------------------
 
+/**
+ * Enregistre un check-in complet.
+ */
 export const insertQuestionnaire = (
   idEnfant,
   date,
@@ -82,6 +125,9 @@ export const insertQuestionnaire = (
     [idEnfant, date, idEmotion, intensite, idSignal, idLieu]
   );
 
+/**
+ * Récupère l'historique d'un enfant avec les libellés descriptifs (JOIN).
+ */
 export const selectQuestionnairesByEnfant = (idEnfant) =>
   queryMany(
     `SELECT 
@@ -98,6 +144,9 @@ export const selectQuestionnairesByEnfant = (idEnfant) =>
     [idEnfant]
   );
 
+/**
+ * Cherche le dernier questionnaire saisi aujourd'hui.
+ */
 export const selectLastQuestionnaire = (idEnfant, aujourdhui) =>
   queryOne(
     `SELECT 
@@ -114,8 +163,14 @@ export const selectLastQuestionnaire = (idEnfant, aujourdhui) =>
     [idEnfant, aujourdhui]
   );
 
-// -------------------- RECOMMANDATION --------------------
+// -----------------------------------------------------------------------------
+// DOMAINE : RECOMMANDATION & CATALOGUE
+// Liens entre bilans et activités proposées
+// -----------------------------------------------------------------------------
 
+/**
+ * Enregistre le choix du mini-jeu proposé à l'enfant suite à son bilan.
+ */
 export const insertRecommandation = (idQuestionnaire, date, idMiniJeu) =>
   exec(
     `INSERT INTO recommandation (
@@ -126,6 +181,9 @@ export const insertRecommandation = (idQuestionnaire, date, idMiniJeu) =>
     [idQuestionnaire, date, idMiniJeu]
   );
 
+/**
+ * Récupère le mini-jeu associé à un questionnaire.
+ */
 export const selectRecommandation = (idQuestionnaire) =>
   queryOne(
     `SELECT id_mini_jeu
@@ -134,6 +192,9 @@ export const selectRecommandation = (idQuestionnaire) =>
     [idQuestionnaire]
   );
 
+/**
+ * Accès au catalogue statique des mini-jeux.
+ */
 export const selectMiniJeu = (idMinIJeu) =>
   queryOne(
     `

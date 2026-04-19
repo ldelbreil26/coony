@@ -1,3 +1,13 @@
+/**
+ * @file PageTableauBordEnfant.jsx
+ * @description Composant UI pour l'écran du Tableau de bord Enfant.
+ * 
+ * Architecture :
+ * - Consommation d'état : Utilise `useEnfantSelectionne` pour identifier l'enfant actuel.
+ * - Orchestration de la logique : Délègue la récupération des données et la logique métier à `useEnfantTableauDeBord`.
+ * - Présentation : Affiche l'humeur la plus récente de l'enfant, le mini-jeu recommandé et d'autres activités.
+ */
+
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -10,8 +20,15 @@ import FondOnde from "../../src/components/FondOnde";
 
 import { useEnfantTableauDeBord } from "../../src/hooks/dashboard/useEnfantTableauDeBord";
 
+/**
+ * La vue principale du tableau de bord pour l'utilisateur enfant.
+ * 
+ * @returns {JSX.Element}
+ */
 export default function PageDashboardEnfant() {
   const { enfantSelectionne } = useEnfantSelectionne();
+  
+  // Données et logique fournies par le hook dédié
   const { 
     questionnaireDuJour, 
     emotionDetails, 

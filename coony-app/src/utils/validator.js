@@ -47,7 +47,6 @@ export function validatePattern(value, pattern, options = {}) {
   const patterns = options.patterns || {};
   const message  = options.message  || "Format invalide";
 
-  // Un peu dégueulasse de laisser ça ici mais on s'en fou pour l'instant
   const regexPatterns = {
     "dateISO": /^\d{4}-\d{2}-\d{2}$/,
     "email": /^[^\s@]+@[^\s@]+\.[^\s@]+$/,

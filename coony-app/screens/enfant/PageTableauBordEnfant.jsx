@@ -226,7 +226,7 @@ export default function PageDashboardEnfant() {
 
         <TouchableOpacity
           style={styles.carteCatalogue}
-          onPress={() => router.push("/catalogue")}
+          onPress={() => console.log("CATALOGUE_EMOTIONS: Not implemented yet.")}
         >
           <MaterialCommunityIcons
             name="book-open-page-variant"

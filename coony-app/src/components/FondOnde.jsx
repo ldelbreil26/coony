@@ -33,7 +33,10 @@ export default function FondOndes() {
   const pathHaut = `M0 0 L${width * 2} 0 L${width * 2} 50 Q${width * 1.75} 100 ${width * 1.5} 50 T${width} 50 T${width / 2} 50 T0 50 Z`;
 
   return (
-    <View style={[StyleSheet.absoluteFill, { backgroundColor: COLORS.background, zIndex: -1 }]}>
+    <View 
+      pointerEvents="none"
+      style={[StyleSheet.absoluteFill, { backgroundColor: COLORS.background, zIndex: -1 }]}
+    >
       <View style={styles.topContainer}>
         <Animated.View style={[styles.waveWrapper, animatedStyle]}>
           <Svg width={width * 2} height={100}>

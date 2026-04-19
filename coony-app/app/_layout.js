@@ -16,10 +16,13 @@ export default function RootLayout() {
           setDbPret(true); 
           return; 
         }
+
+        const { initialiserBaseDeDonnees } = await import("../src/data/sqlite/client");
         
         const { seedCatalogues } = await import("../src/data/seed/catalogues.seed");
         const { seedUsers } = await import("../src/data/seed/users.seed");
 
+        await initialiserBaseDeDonnees();
         await seedCatalogues();
         await seedUsers();
 

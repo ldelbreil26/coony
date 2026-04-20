@@ -17,14 +17,14 @@ L'expression des sentiments peut être un défi complexe pour un enfant TSA. COO
 # Procédure d'installation et de lancement de l'application
 Pour accéder à l'application COONY, veuillez suivre la procédure du document ci-joint : 
 
-[PRODÉDURE D'INSTALLATION](./docs/GUIDE-D'INSTALLATION-COONY.pdf)
+[PRODÉDURE D'INSTALLATION](../docs/GUIDE-D'INSTALLATION-COONY.pdf)
 
 # Guide utilisateur 
 Pour comprendre le fonctionnement de l'application COONY, vous pouvez vous référez au document ci-joint :
 
-[GUIDE UTILISATEUR](./docs/GUIDE-UTILISATEUR-COONY.pdf)
+[GUIDE UTILISATEUR](../docs/GUIDE-UTILISATEUR-COONY.pdf) 
 
 # Rapport technique
 Pour plus d'informations techniques, vous pouvez consulter le rapport technique ci-joint : 
 
-[RAPPORT TECHNIQUE](./docs/RAPPORT-TECHNIQUE-FINAL-COONY.pdf)
+[RAPPORT TECHNIQUE](../docs/RAPPORT-TECHNIQUE-FINAL-COONY.pdf)

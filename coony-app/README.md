@@ -1,50 +1,30 @@
-# Welcome to your Expo app 👋
+# COONY : L'assistant émotionnel pour enfants TSA
+COONY est une application mobile développée avec React Native et Expo, conçue pour accompagner les enfants présentant un Trouble du Spectre de l'Autisme (TSA) dans la compréhension et la régulation de leurs émotions.
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+L'expression des sentiments peut être un défi complexe pour un enfant TSA. COONY transforme cette démarche en une expérience visuelle, ludique et sécurisante. L'application agit comme un pont entre l'enfant et ses parents, permettant une communication non-verbale fluide et un suivi thérapeutique personnalisé.
 
-## Get started
+# Principales fonctionnalités
+> Questionnaire Émotionnel : Un ensemble de saisie simplifié utilisant des pictogrammes et des codes couleurs pour exprimer une émotion, son intensité et son contexte.
 
-1. Install dependencies
+> Système de Recommandation : Un algorithme intelligent qui propose instantanément une activité adaptée (respiration guidée, exercice d'ancrage, retour au calme) en fonction du profil émotionnel saisi.
 
-   ```bash
-   npm install
-   ```
+> Mini-jeux : Des exercices interactifs utilisant l'Animated API pour guider l'enfant vers l'apaisement de manière fluide et intuitive.
 
-2. Start the app
+> Tableau de Bord Parent : Un espace sécurisé permettant de consulter l'historique complet des saisies via une base de données SQLite locale, garantissant la confidentialité totale des données.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+# Procédure d'installation et de lancement de l'application
+Pour accéder à l'application COONY, veuillez suivre la procédure du document ci-joint : 
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+[PRODÉDURE D'INSTALLATION](./docs/GUIDE-D'INSTALLATION-COONY.pdf)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+# Guide utilisateur 
+Pour comprendre le fonctionnement de l'application COONY, vous pouvez vous référez au document ci-joint :
 
-## Get a fresh project
+[GUIDE UTILISATEUR](./docs/GUIDE-UTILISATEUR-COONY.pdf)
 
-When you're ready, run:
+# Rapport technique
+Pour plus d'informations techniques, vous pouvez consulter le rapport technique ci-joint : 
 
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+[RAPPORT TECHNIQUE](./docs/RAPPORT-TECHNIQUE-FINAL-COONY.pdf)
